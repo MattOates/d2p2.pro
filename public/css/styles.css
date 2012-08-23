@@ -1,0 +1,23 @@
+.login-button {
+    vertical-align: middle;
+}
+
+#content {
+    height: 600px;
+}
+
+body {
+    padding-top: 60px; /*Make container reach the bottom of the heading*/
+}
+
+/* Wrap example sequences */
+.fasta,
+#seq-search-form p.help-block {
+    font-family: courier;
+    word-wrap: break-word;
+    max-width: 70ex;
+}
+
+.control-group {
+    margin-top: 1em;
+}

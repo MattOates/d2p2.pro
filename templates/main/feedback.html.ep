@@ -1,0 +1,76 @@
+% title 'Disorder';
+% my $block = begin
+% my ($heading, $blurb, $url, $size) = @_;
+	<div class="span<%= $size %>">
+	 <h2><%= $heading %></h2>
+	 <p><%= $blurb %></p>
+	 <p><a class="btn" href="<%= $url %>">Go &raquo;</a></p>
+	</div><!--/span4-->
+% end
+
+	<%= include 'header' %>
+    <%= include 'navbar', section => 'Home' %>
+    <div id="content">
+    <div class="container">
+	<div class="row">
+	<div class="span12">
+		<div class="hero-unit">
+        <h1>D<sup>2</sup>P<sup>2</sup></h1>
+		<h2>The Database of Disordered Protein Predictions</h2>
+        <p><a href="<%= url '/about' %>" class="btn btn-primary btn-large">
+			Learn more &raquo;
+        </a></p>
+        <p><strong>12,314,806 sequences</strong> from <strong>1,530 fully sequenced genomes</strong>, with disorder predicted from <strong>5 disorder predictors</strong>, and <strong>2,055 SCOP domains</strong> predicted by SUPERFAMILY.</p>
+        </div><!--/hero-unit-->
+        <div class="row">
+        <div class="span4">
+	            <h2>Protein Search</h2>
+	            <p>Search for a specific protein and view the SCOP domain and disordered region predictions.</p>
+                <p><a class="btn" href="<%= url '/search' %>">Go &raquo;</a></p>
+	        </div><!--/span6-->
+        <div class="span4">
+	            <h2>Browse</h2>
+                <p>Search for sequences of interest based on <abbr title="Gene Ontology">GO</abbr> term, taxonomic inclusion, ammount disordered.</p>
+                <p><a class="btn" href="<%= url '/search/build' %>">Go &raquo;</a></p>
+	    </div><!--/span6-->
+        <div class="span4">
+	            <h2>Download</h2>
+                <p>Download our database for your own research.</p>
+                <p><a class="btn" href="<%= url '/download' %>">Go &raquo;</a></p>
+	    </div><!--/span6-->
+
+
+		</div><!--/row-->
+
+        <div class="row">
+            <div class="span4">
+                <div class="well">
+	            <h2>Database</h2>
+	            <p>View status information about the current state of the database.</p>
+                <p><a class="btn" href="<%= url '/about/database' %>">Go &raquo;</a></p>
+                </div>  
+	        </div><!--/span4-->
+
+             <div class="span4">
+                <div class="well">
+	            <h2>Predictors</h2>
+	            <p>View statistics and information on the various disorder predictors included in the database.</p>
+                <p><a class="btn" href="<%= '/about/predictors' %>">Go &raquo;</a></p>
+                </div>  
+	        </div><!--/span4-->
+            <div class="span4">
+                <div class="well">
+	            <h2>Genomes</h2>
+	            <p>Information on the genomes included in the database.</p>
+                <p><a class="btn" href="<%= url '/about/genomes' %>">Go &raquo;</a></p>
+                </div>  
+            </div><!--/span4-->
+		</div><!--/row-->
+	</div><!--/span12-->
+	</div><!--/row-->
+	</div><!--/container-->
+	<%= content %>
+	</div><!--/content-->
+	<%= include 'footer' %>
+
+</html>

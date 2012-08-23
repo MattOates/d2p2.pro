@@ -1,0 +1,42 @@
+<%= include 'header' %>
+<%= include 'navbar', section => 'Search' %>
+	<div class="row">
+	<div class="span12">
+		<h1>Results for your sequence search:</h1>
+        <p style="margin-top:1em; margin-bottom:1em;">The <strong>highlighted portions of sequence below</strong> are where there is 75% agreement between all predictors in the database for your sequence. </p>
+        % use DisDB::SQL::Search 'getProteinConsensus';
+        % use DisDB::Utils::String 'highlight';
+        % use Data::Dumper;
+        % for my $sequence (keys %$proteins) {
+        %    my @seqids = @{$proteins->{$sequence}{ids}};
+        %    my $ids = join ",", @seqids;
+        %    #die(Dumper($proteins)); 
+        %    my $protein = (defined $proteins->{$sequence}{proteins}) ?  $proteins->{$sequence}{proteins}[0][0] : undef;
+        %    my $consensus = getProteinConsensus($protein, 0.75);
+        %    if (defined $consensus) {
+        %       $sequence = highlight($sequence, 'strong', @{$consensus});
+        %    }
+        %   #$sequence=~ s/(.{1,40})/$1<br \/>\n/gs;
+        <div class="row" style="margin-top:2em;">
+            <div class="span12">
+            <h2 class="page-header"><%= $ids %> <%= $protein %></h2>
+            <div class="span4">
+                <p style="font-family:courier;word-wrap:break-word;">&gt;<%=$ids%><br /><%== $sequence %></p>
+            </div>
+            <div class="span7" style="overflow-x:scroll">
+                % if ($protein) {
+                %== svg "http://supfam2.cs.bris.ac.uk/oates/cgi-bin/archpic.cgi?seqids=$ids&callouts=1&disorder=1&weak=1"
+                <a href="<%= "http://supfam2.cs.bris.ac.uk/oates/cgi-bin/archpic.cgi?seqids=$ids&callouts=1&disorder=1&weak=1&png=1&forprint=1&download=1" %>" class="btn btn-success btn-small pull-right"><i class="icon-download-alt icon-white"></i> PNG</a>
+                <a href="<%= "http://supfam2.cs.bris.ac.uk/oates/cgi-bin/archpic.cgi?seqids=$ids&callouts=1&disorder=1&weak=1&forprint=1&download=1" %>" class="btn btn-success btn-small pull-right"><i class="icon-download-alt icon-white"></i> SVG</a>
+                % } else {
+                <div class="alert alert-warning">
+                    <p>Sorry we dont have predictions for this sequence.</p>
+                </div>
+                %}
+            </div>
+            </div>
+        </div>
+        % }
+	</div> <!-- /span12 -->
+	    </div> <!-- /row -->
+<%= include 'footer' %>

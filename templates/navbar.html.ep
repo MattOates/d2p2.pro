@@ -1,0 +1,27 @@
+	<div class="navbar navbar-fixed-top">
+	<div class="navbar-inner">
+        <div class="container">
+		<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+		</a>
+        <a class="brand" href="<%= url '/' %>">D<sup>2</sup>P<sup>2</sup></a>
+		<div class="nav-collapse">
+			<ul class="nav">
+                <li<%== ($section =~ /home/i)?' class="active"':''%>><a href="<%= url '/' %>">Home</a></li>
+                <li<%== ($section =~ /about/i)?' class="active"':''%>><a href="<%= url '/about' %>">About</a></li>
+                <li<%== ($section =~ /search/i)?' class="active"':''%>><a href="<%= url '/search' %>">Search</a></li>
+                <!--<li<%== ($section =~ /results/i)?' class="active"':''%>><a href="<%= url '/results' %>">Results</a></li>-->
+                <li<%== ($section =~ /download/i)?' class="active"':''%>><a href="<%= url '/download' %>">Download</a></li>
+                <li<%== ($section =~ /contact/i)?' class="active"':''%>><a href="<%= url '/contact' %>">Contact</a></li>
+            </ul>
+            <% if (session 'user') { %>
+			<p class="navbar-text pull-right">Logged in as <a href="#"><%=session 'user'%></a></p>
+            <% } else { %>
+            <p class="navbar-text pull-right"><a href="<%= url '/auth/login' %>"><img class="login-button" src="<%= url '/img/fblogin.png' %>" alt="Login with Facebook" /></a></p>
+            <% } %>
+		</div><!--/nav-collapse -->
+    </div><!--/container-->
+    </div><!--/navbar-inner-->
+    </div><!--/navbar-fixed-top-->

@@ -1,0 +1,36 @@
+<%= include 'header' %>
+<%= include 'navbar', section => 'Search' %>
+	<div class="row">
+	<div class="span12">
+		<h1>Results for your sequence search:</h1>
+        <p style="margin-top:1em; margin-bottom:1em;">The <strong>highlighted portions of sequence below</strong> are where there is 75% agreement between all predictors in the database for your sequence. Occasionally a sequence ID is not unique to a single genome, in these cases we have provided you with all of the sequences that matched.</p>
+        % use DisDB::SQL::Search 'getProteinConsensus';
+        % use DisDB::Utils::String 'highlight';
+        % use Data::Dumper;
+        % #die($proteins);
+        % for my $seqid (keys %$proteins) {
+            <h2><%= $seqid %></h2>
+        % if (defined $proteins->{$seqid}) {
+        % for my $prot (@{$proteins->{$seqid}}) {
+        %    my $sequence = highlight($prot->[2], 'strong', @{getProteinConsensus($prot->[0],0.75)});
+
+           <div class="row" style="margin-top:2em;">
+                 <a href="<%= "http://supfam2.cs.bris.ac.uk/oates/cgi-bin/archpic.cgi?proteins=$prot->[0]&callouts=1&disorder=1&weak=1&png=1&forprint=1&download=1" %>" class="btn btn-success btn-small pull-right"><i class="icon-download-alt icon-white"></i> PNG</a>
+                <a href="<%= "http://supfam2.cs.bris.ac.uk/oates/cgi-bin/archpic.cgi?proteins=$prot->[0]&callouts=1&disorder=1&weak=1&forprint=1&download=1" %>" class="btn btn-success btn-small pull-right"><i class="icon-download-alt icon-white"></i> SVG</a>
+           
+          <div class="span4">
+                <p style="font-family:courier;word-wrap:break-word;">&gt;<%=$prot->[0]%><br /><%== $sequence %></p>
+            </div><!--/span4-->
+            <div class="span8" style="overflow-x:scroll">
+                <%== svg "http://supfam2.cs.bris.ac.uk/oates/cgi-bin/archpic.cgi?proteins=$prot->[0]&callouts=1&disorder=1&weak=1" %>
+           </div><!--/span8-->
+            </div><!--/row-->
+        % }} else {
+            <div class="alert alert-warning">
+                <p>Sorry we dont have this sequence ID on record.</p>
+            </div>
+        % } 
+        % } 
+	</div> <!-- /span12 -->
+	</div> <!-- /row -->
+<%= include 'footer' %>

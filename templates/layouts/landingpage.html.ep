@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+% my $block = begin
+% my ($heading, $blurb, $url, $size) = @_;
+	<div class="span<%= $size %>">
+	 <h2><%= $heading %></h2>
+	 <p><%= $blurb %></p>
+	 <p><a class="btn" href="<%= $url %>">Go &raquo;</a></p>
+	</div><!--/span4-->
+% end
+
+	<%= include 'header' %>
+	<%= include 'navbar' %>
+	<div class="container">
+	<div class="row">
+	<div class="span12">
+		<div class="hero-unit">
+		<h1><%= title %></h1>
+		<p><%= $land_blurb %></p>
+		<p><a href="<%= $land_btn_url %>" class="btn btn-primary btn-large">
+			Learn more &raquo;
+		</a></p>
+		</div><!--/hero-unit-->
+		<div class="row">
+		</div><!--/row-fluid-->
+	</div><!--/span12-->
+	</div><!--/row-fluid-->
+	</div><!--/container-fluid-->
+	<%= content %>
+	<%= include 'footer' %>
+
+</html>

@@ -1,0 +1,33 @@
+% title 'About - Database';
+	<%= include 'header' %>
+    <%= include 'navbar', section => 'About' %>
+    <div id="content">
+    <div class="container">
+	<div class="row">
+	<div class="span12">
+		<div class="hero-unit">
+            <h1>Database Status/Statistics</h1>
+           <p><a href="<%= url '/search' %>" class="btn btn-primary btn-large">
+			Search Now &raquo;
+            </a></p>
+        </div><!--/hero-unit-->
+        <div class="span3 offset2">
+        <table class="table table-bordered table-striped" style="width: 100%;">
+                <tr><th># Sequences</th><td>12,314,806</td></tr>
+                <tr><th># Disorder Predictors</th><td>5</td></tr>
+                <tr><th># Structure Predictors</th><td>1</td></tr>
+                <tr><th># Binding Site Predictors</th><td>1</td></tr>
+                <tr><th>Total # Genomes</th><td>1,765</td></tr>
+                <tr><th># Eukaryotic Species </th><td>338</td></tr>
+                <tr><th># Bacterial Species</th><td>1081</td></tr>
+                <tr><th># Archeal Species</th><td>87</td></tr>
+        </table>
+        </div>
+	</div><!--/span12-->
+	</div><!--/row-->
+	</div><!--/container-->
+	<%= content %>
+	</div><!--/content-->
+	<%= include 'footer' %>
+
+</html>

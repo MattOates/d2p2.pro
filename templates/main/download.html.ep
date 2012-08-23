@@ -1,0 +1,65 @@
+% title 'Downloads';
+	<%= include 'header' %>
+    <%= include 'navbar', section => 'Download' %>
+	<div class="row">
+	<div class="span12">
+        <h1>Download Our Data</h1>
+        <div class="row"> 
+        <div id="download-blurb" class="span5 offset1" style="margin-top:2em;">
+            <p><a href="mailto:matt.oates@bristol.ac.uk?Subject=About%20Your%20Database">Matt Oates</a> is the corresponding author for the database's website and dump. For specific predictors please contact the corresponding author listed on our <a href="<%= url '/about/predictors' %>">about predictors</a> page. As the website improves on demand dumps of specific search results will be possible, in various formats. As well as per predictor/genome dumps.</p> 
+        </div>
+        </div>
+        <h2 class="page-header">Predictor Statistics</h2>
+        <p><a href="" class="btn btn-primary btn-small"> Info .tab</a> Get all of the genome meta data as a tab delimited file, loadable by MySQL or similar database engine.</p>
+consensus_conflict_number.tsv.gz
+consensus_ranges.tsv.gz
+coverage_conflict.tsv.gz
+predictor_compared.tsv.gz
+
+        <h2 class="page-header">Genomes</h2>
+        <p><a href="ftp://supfam2.cs.bris.ac.uk/genome.tab" class="btn btn-primary btn-small">Genome Info .tab</a> Get all of the genome meta data as a tab delimited file, loadable by MySQL or similar database engine.</p>
+        <p><a href="ftp://supfam2.cs.bris.ac.uk/genomes.txt" class="btn btn-primary btn-small">Genome Info .txt</a> Get reduced genome meta information in CSV format.</p>
+
+        <h2 class="page-header">Proteins</h2>
+        <p><a href="ftp://supfam2.cs.bris.ac.uk/genomes.fa.gz" class="btn btn-primary btn-small">
+			genomes.fa.gz
+        </a> Get the <strong>reference genome sequences</strong> in FASTA format. Internal protein ID used as the sequence ID. To map to each genome you will need the genomes.protein file.</p>
+         <p><a href="ftp://supfam2.cs.bris.ac.uk/genomes.protein.gz" class="btn btn-primary btn-small">
+			genomes.protein.gz
+        </a> Get the <strong>genome to protein ID mapping</strong> used as the <strong>reference genome</strong> FASTA file. This is in a tab delimited format for easy database loading.</p>
+        <br />
+         <p><a href="ftp://supfam2.cs.bris.ac.uk/strains.fa.gz" class="btn btn-primary btn-small">
+			strains.fa.gz
+        </a> Get the genome sequences of all species strains in FASTA format. Internal protein ID used as the sequence ID. To map to each genome you will need the strains.protein file.</p>
+         <p><a href="ftp://supfam2.cs.bris.ac.uk/strains.protein.gz" class="btn btn-primary btn-small">
+			strains.protein.gz
+        </a> Get the <strong>genome to protein ID mapping</strong> used as the <strong>species strains</strong> FASTA file. This is in a tab delimited format for easy database loading.</p>
+ 
+        <h2 class="page-header">Disorder</h2>
+        <p><a class="btn btn-primary btn-small" href="http://supfam2.cs.bris.ac.uk/oates/downloads/all.disrange.gz">all.disrange.gz</a> Get all disordered regions predicted by every predictor for all protein sequences. Both .protein files from above will be required to properly map these results to sequence.</p>
+        <br />
+        <p><a class="btn btn-primary btn-small" href="http://supfam2.cs.bris.ac.uk/oates/downloads/vlxt.disrange.gz">vlxt.disrange.gz</a> Just the VL-XT predictions.</p>
+        <p><a class="btn btn-primary btn-small" href="http://supfam2.cs.bris.ac.uk/oates/downloads/vsl2b.disrange.gz">vsl2b.disrange.gz</a> Just the VSL2b predictions.</p>
+        <p><a class="btn btn-primary btn-small" href="http://supfam2.cs.bris.ac.uk/oates/downloads/prdos.disrange.gz">prdos.disrange.gz</a> Just the PrDOS predictions.</p>
+        <p><a class="btn btn-primary btn-small" href="http://supfam2.cs.bris.ac.uk/oates/downloads/pv2.disrange.gz">pv2.disrange.gz</a> Just the PV2 predictions.</p>
+        <p><a class="btn btn-primary btn-small" href="http://supfam2.cs.bris.ac.uk/oates/downloads/iupred-s.disrange.gz">iupred-s.disrange.gz</a> Just the IUPred-S predictions.</p>
+        <p><a class="btn btn-primary btn-small" href="http://supfam2.cs.bris.ac.uk/oates/downloads/iupred-l.disrange.gz">iupred-l.disrange.gz</a> Just the IUPred-L predictions.</p>
+        <p><a class="btn btn-primary btn-small" href="http://supfam2.cs.bris.ac.uk/oates/downloads/espritz-x.disrange.gz">espritz-x.disrange.gz</a> Just the Espritz-X predictions.</p>
+        <p><a class="btn btn-primary btn-small" href="http://supfam2.cs.bris.ac.uk/oates/downloads/espritz-n.disrange.gz">espritz-n.disrange.gz</a> Just the Espritz-N predictions.</p>
+        <p><a class="btn btn-primary btn-small" href="http://supfam2.cs.bris.ac.uk/oates/downloads/espritz-d.disrange.gz">espritz-d.disrange.gz</a> Just the Espritz-D predictions.</p>
+        <br />
+        <p><a class="btn btn-primary btn-small" href="http://supfam2.cs.bris.ac.uk/oates/downloads/prdos.score.gz">prdos.score.gz</a> Per amino acid disorder scores for all proteins from PrDOS.</p>
+        <p><a class="btn btn-primary btn-small" href="http://supfam2.cs.bris.ac.uk/oates/downloads/iupred-s.score.gz">iupred-s.score.gz</a> Per amino acid disorder scores for all proteins from IUPred-S.</p>
+        <p><a class="btn btn-primary btn-small" href="http://supfam2.cs.bris.ac.uk/oates/downloads/iupred-l.score.gz">iupred-l.score.gz</a> Per amino acid disorder scores for all proteins from IUPred-L.</p>
+        <p><a class="btn btn-primary btn-small" href="http://supfam2.cs.bris.ac.uk/oates/downloads/espritz-x.score.gz">espritz-x.score.gz</a> Per amino acid disorder scores for all proteins from Espritz-X.</p>
+        <p><a class="btn btn-primary btn-small" href="http://supfam2.cs.bris.ac.uk/oates/downloads/espritz-n.score.gz">espritz-n.score.gz</a> Per amino acid disorder scores for all proteins from Espritz-N.</p>
+        <p><a class="btn btn-primary btn-small" href="http://supfam2.cs.bris.ac.uk/oates/downloads/espritz-d.score.gz">espritz-d.score.gz</a> Per amino acid disorder scores for all proteins from Espritz-D.</p>
+
+        <h2 class="page-header">Disordered Binding Sites</h2>
+        <p><a class="btn btn-primary btn-small" href="http://supfam2.cs.bris.ac.uk/oates/downloads/anchor.disrange.gz">anchor.disrange.gz</a> ANCHOR results as a part of the IUPred prediction. This file contains the amino acid ranges per protein that are predicted to spontaineously bind with the surface of other proteins, via linear motif interaction.</p>
+        <p><a class="btn btn-primary btn-small" href="http://supfam2.cs.bris.ac.uk/oates/downloads/anchor.score.gz">anchor.score.gz</a> Per residue scores from ANCHOR for every protein in the database collection.</p>
+ 
+
+	</div><!--/span12-->
+	</div><!--/row-->
+	<%= include 'footer' %>

@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html>
+
+	%= include 'header'
+	%= include 'navbar'
+	%= content
+	%= include 'footer'
+
+</html>

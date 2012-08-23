@@ -1,0 +1,45 @@
+% title 'About - Database';
+	<%= include 'header' %>
+    <%= include 'navbar', section => 'About' %>
+	<div class="row">
+	<div class="span12">
+		<div class="hero-unit">
+            <h1>About D<sup>2</sup>P<sup>2</sup></h1>
+		<p>An introduction to what you can see and do with the website.</p>
+        <p><a href="<%= url '/search' %>" class="btn btn-primary btn-large">
+			Search Instead &raquo;
+        </a></p>
+        </div><!--/hero-unit-->
+        <h1 class="page-header">Disordered Protein?</h1>
+        <div class="row">
+        <div class="span5">
+       <ul class="thumbnails">
+            <li class="span5">
+            <div class="thumbnail">
+            <img src="<%= url '/img/disorder_white_600.png' %>" alt="PDB:2fft">
+            <h5>All states of TSP9 <a href="http://www.rcsb.org/pdb/explore/explore.do?structureId=2fft">PDB:2fft</a></h5>
+            <p>A single stable helix (<span class="badge badge-inverse">black</span>) seperates two disordered segments (blue &amp; green-red) of the Thylakoid soluble phosphoprotein TSP9. All known states from NMR are shown super imposed.</p>
+            </div>
+            </li>
+        </ul>
+        </div><!--/span5-->
+        <div class="span7">
+        <p>Intrinsically unstructured (<abbr title="Intrinsically Unstructured Protein">IUP</abbr>) or disordered proteins, are proteins that exist in a naturally unfolded state
+        and lack stable tertiary structure <emph>in vivo</emph>.</p>
+        </div><!--/span7-->
+        </div><!--/row-->
+        <h1 class="page-header">Protein Figures</h1>
+        <div class="row">
+            <div class="span4">
+            <p>The figure to the right shows two transcripts of the Human gene BIN1. With the longer transcript <a href="http://www.ensembl.org/Homo_sapiens/Transcript/ProteinSummary?db=core;g=ENSG00000136717;r=2:127805603-127864931;t=ENST00000316724">ENSP00000316779</a> we can see that the <a href="http://supfam.org/SUPERFAMILY/cgi-bin/scop.cgi?sunid=103657">BAR/IMD domain</a> has undergone an insertion of disorderied sequence, fragmenting the structured region predicted by SUPERFAMILY. Looking at the consensus bar we can also see that the insert has high agreement between the disorder predictors, and that it's not conflicting with the SUPERFAMILY interpretation (green rather than red).</p>
+            </div><!--/span4-->
+ 
+            <div class="offset1 span7">
+            <%== svg 'http://supfam2.cs.bris.ac.uk/oates/cgi-bin/archpic.cgi?seqids=ENSP00000316779,ENSP00000365281&callouts=1&disorder=1&weak=1'%>
+            </div><!--/span8-->
+       </div><!--/row-->
+	</div><!--/span12-->
+	</div><!--/row-->
+	<%= include 'footer' %>
+
+</html>

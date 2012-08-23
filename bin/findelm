@@ -1,0 +1,207 @@
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+use Data::Dumper;
+
+sub match_positions {
+    my ($regex, $string) = @_;
+    return if not $string =~ /($regex)/;
+    return (pos(), pos() + length $1);
+}
+sub all_match_positions {
+    my ($regex, $string) = @_;
+    my @ret;
+    while ($string =~ /($regex)/g) {
+        push @ret, [pos(), pos() + length $1];
+    }
+    return @ret
+}
+
+my $sequence = 'MSNVRVSNGSPSLERMDARQAEHPKPSACRNLFGPVDHEELTRDLEKHCRDMEEASQRKWNFDFQNHKPLEGKYEWQEVEKGSLPEFYYRPPRPPKGACKVPAQESQDVSGSRPAAPLIGAPANSEDTHLVDPKTDPSDSQTGLAEQCAGIRKRPATDDSSTQNKRANRTEENVSDGSPNAGSVEQTPKKPGLRRRQT';
+
+my %motifs = map {chomp; split /\t/;} <DATA>;
+while (my ($motif, $pattern) = each %motifs) {
+	print "$motif\n";
+	print Dumper(all_match_positions($pattern,$sequence));
+}
+
+1;
+
+__DATA__
+CLV_C14_Caspase3-7	[DSTE][^P][^DEWHFYC]D[GSAN]
+CLV_MEL_PAP_1	[ILV]..[R][VF][GS].
+CLV_NDR_NDR_1	(.RK)|(RR[^KR])
+CLV_PCSK_FUR_1	R.[RK]R.
+CLV_PCSK_KEX2_1	[KR]R.
+CLV_PCSK_PC1ET2_1	KR.
+CLV_PCSK_PC7_1	[R]...[KR]R.
+CLV_PCSK_SKI1_1	[RK].[AILMFV][LTKF].
+CLV_TASPASE1	Q[MLVI]DG..[DE]
+LIG_14-3-3_1	R.[^P]([ST])[^P]P
+LIG_14-3-3_2	R..[^P]([ST])[IVLM].
+LIG_14-3-3_3	[RHK][STALV].([ST]).[PESRDIFTQ]
+LIG_Actin_RPEL_3	[IL]..[^P][^P][^P][^P]R.....[IL]..[^P][^P][ILV][ILM]
+LIG_Actin_WH2_1	[R]..[ILVMF][ILMVF][^P][^P][ILVM].{4,7}L(([KR].)|(NK))[VATI]
+LIG_Actin_WH2_2	[^R]..((.[ILMVF])|([ILMVF].))[^P][^P][ILVM].{4,7}L(([KR].)|(NK))[VATIGS]
+LIG_AGCK_PIF_1	F..[FWY][ST][FY]
+LIG_AGCK_PIF_2	F..[FWY][DE][FY]
+LIG_AGCK_PIF_3	F..F$
+LIG_AP2alpha_1	F.D.F
+LIG_AP2alpha_2	DP[FW]
+LIG_APCC_Dbox_1	.R..L..[LIVM].
+LIG_APCC_KENbox_2	.KEN.
+LIG_AP_GAE_1	[DE][DES][DEGAS]F[SGAD][DEAP][LVIMFD]
+LIG_BIR_II_1	^M{0,1}[AS]...
+LIG_BIR_III_1	^M{0,1}A.P.
+LIG_BIR_III_2	DA.P.
+LIG_BIR_III_3	^M{0,1}A.[AP].
+LIG_BIR_III_4	DA.G.
+LIG_BRCT_BRCA1_1	.(S)..F
+LIG_BRCT_BRCA1_2	.(S)..F.K
+LIG_BRCT_MDC1_1	.(S)..Y$
+LIG_CAP-Gly_1	[ED].{0,2}[ED].{0,2}[EDQ].{0,1}[YF]$
+LIG_CAP-Gly_2	.W[RK][DE]GCY$
+LIG_Clathr_ClatBox_1	L[IVLMF].[IVLMF][DE]
+LIG_Clathr_ClatBox_2	.[np]w[des].w
+LIG_COP1	[DE][DE]...VP[DE]
+LIG_CORNRBOX	L[^P]{2,2}[HI]I[^P]{2,2}[IAV][IL]
+LIG_CRL4_Cdt2_1	[NQ]{0,1}..[ILMV]T[DEN][FY][FY].{2,3}[KR]{2,3}[^DE]
+LIG_CRL4_Cdt2_2	[NQ]{0,1}..[ILMV]T[DEN][HMFY][FMY].{2,3}[KR]{2,3}[^DE]
+LIG_CtBP	[PG][LVIPME][DENS]L[VASTRGE]
+LIG_CYCLIN_1	[RK].L.{0,1}[FYLIVMP]
+LIG_Dynein_DLC8_1	[^P].[KR].TQT
+LIG_EH_1	.NPF.
+LIG_EH1_1	.[FYH].[IVM][^WFYP][^WFYP][ILM][ILMV].
+LIG_eIF4E_1	Y....L[VILMF]
+LIG_eIF4E_2	Y.PP.[ILMV]R
+LIG_EVH1_1	[FILVY].{0,1}P.[PAILSK]P
+LIG_EVH1_2	PP..F
+LIG_EVH1_3	[FY].[FW].....[LMVIF]P.P[DE]
+LIG_FAT_LD_1	[LV][DE][^P][LM][LM][^P][^P]L[^P]
+LIG_FHA_1	..(T)..[ILV].
+LIG_FHA_2	..(T)..[DE].
+LIG_GLEBS_BUB3_1	[EN][FYLW][NSQ].EE[ILMVF][^P][LIVMFA]
+LIG_GYF	[QHR].{0,1}P[PL]PP[GS]H[RH]
+LIG_HCF-1_HBM_1	[DE]H.Y
+LIG_HOMEOBOX	[FY][DEP]WM
+LIG_HP1_1	P[MVLIRWY]V[MVLIAS][LM]
+LIG_IBS_1	G[FL]PGER..G
+LIG_IQ	...[SACLIVTM]..[ILVMFCT]Q.{3,3}[RK].{4,5}[RKQ]..
+LIG_KEPE_1	[VILMFT]K.EP.[DE]
+LIG_KEPE_2	[VILMFT]K.EP.{2,3}[DE]
+LIG_KEPE_3	[VILMFT]K.EP....[DE]
+LIG_LYPXL_L_2	[LM]YP...[LI][^P][^P][LI]
+LIG_LYPXL_S_1	[LM]YP.[LI]
+LIG_MAD2	[KR][IV][LV].....P
+LIG_MAPK_1	[KR]{0,2}[KR].{0,2}[KR].{2,4}[ILVM].[ILVF]
+LIG_MAPK_2	F.FP
+LIG_MDM2	F...W..[LIV]
+LIG_MYND	[^WFHYG][MAPSTLIV]P[^CGW]L[^EDKRPG]P[^WFHYG]
+LIG_NRBOX	[^P]L[^P][^P]LL[^P]
+LIG_OCRL_FandH_1	.F[^P][^P][KRIL]H[^P][^P][YLMFH][^P]...
+LIG_ODPH_VHL_1	[IL]A(P).{6,8}[FLIVM].[FLIVM]
+LIG_PAM2_1	..[LFP][NS][PIVTAFL].A..(([FY].[PYLF])|(W..)).
+LIG_PCNA	((^.{0,3})|(Q)).[^FHWY][ILM][^P][^FHILVWYP][DHFM][FMY]..
+LIG_PDZ_Class_1	...[ST].[ACVILF]$
+LIG_PDZ_Class_2	...[VLIFY].[ACVILF]$
+LIG_PDZ_Class_3	...[DE].[ACVILF]$
+LIG_PIKK_1	[DEN][DEN].{2,3}[ILMVA][DEN][DEN]L
+LIG_PP1	..[RK].{0,1}[VIL][^P][FW].
+LIG_PP2B_1	.P[^P]I[^P][IV][^P]
+LIG_PTAP_UEV_1	.P[TS]AP.
+LIG_PTB_Apo_2	(.[^P].NP.[FY].)|(.[ILVMFY].N..[FY].)
+LIG_PTB_Phospho_1	(.[^P].NP.(Y))|(.[ILVMFY].N..(Y))
+LIG_RAPTOR_TOS_1	F[EDQS][MILV][ED][MILV]((.{0,1}[ED])|($))
+LIG_Rb_LxCxE_1	[LI].C.[DE]
+LIG_Rb_pABgroove_1	..[LIMV]..[LM][FY]D.
+LIG_RGD	RGD
+LIG_RRM_PRI_1	.[ILVM]LG..P.
+LIG_SCF_FBW7_1	[LIVMP].{0,2}(T)P..([ST])
+LIG_SCF_FBW7_2	[LIVMP].{0,2}(T)P..E
+LIG_SCF_Skp2-Cks1_1	..[DE].(T)P.K
+LIG_SCF-TrCP1_1	D(S)G.{2,3}([ST])
+LIG_SH2_GRB2	(Y).N.
+LIG_SH2_PTP2	(Y)[IV].[VILP]
+LIG_SH2_SRC	(Y)[QDEVAIL][DENPYHI][IPVGAHS]
+LIG_SH2_STAT3	(Y)..Q
+LIG_SH2_STAT5	(Y)[VLTFIC]..
+LIG_SH2_STAT6	G(Y)[KQ].F
+LIG_SH3_1	[RKY]..P..P
+LIG_SH3_2	P..P.[KR]
+LIG_SH3_3	...[PV]..P
+LIG_SH3_4	KP..[QK]...
+LIG_SH3_5	P..DY
+LIG_SIAH_1	.P.A.V.P[^P]
+LIG_Sin3_1	[LIV]..[LM]L.AA.[FY][LI]
+LIG_Sin3_2	[FHYM].A[AV].[VAC]L[MV].[MI]
+LIG_Sin3_3	[FA].[LA][LV][LVI]..[AM]
+LIG_SPAK-OSR1_1	RF[^P][IV].
+LIG_SxIP_EBH_1	([KR][^ED]{0,5}[ST].IP[^ED]{5,5})|([^ED]{5,5}[ST].IP[^ED]{0,5}[KR])
+LIG_TNKBM_1	.R..[PGAV][DEIP]G.
+LIG_TPR	EEVD$
+LIG_TRAF2_1	[PSAT].[QE]E
+LIG_TRAF2_2	P.Q..D
+LIG_TRAF6	..P.E..[FYWHDE].
+LIG_TRFH_1	[FY].L.P
+LIG_ULM_U2AF65_1	[KR]{1,4}[KR].[KR]W.
+LIG_USP7_1	[PA][^P][^FYWIL]S[^P]
+LIG_USP7_2	P.E[^P].S[^P]
+LIG_WH1	ES[RK][FY][YST]FH[PS][IV][ES]D
+LIG_WRPW_1	[WFY]RP[WFY].{0,7}$
+LIG_WRPW_2	[WFY][KR]P[WFY]
+LIG_WW_1	PP.Y
+LIG_WW_2	PPLP
+LIG_WW_3	.PPR.
+LIG_WW_Pin1_4	...([ST])P.
+MOD_ASX_betaOH_EGF	C.([DN]).{4,4}[FY].C.C
+MOD_CAAXbox	(C)[^DENQ][LIVM].$
+MOD_CDK_1	...([ST])P.[KR]
+MOD_CK1_1	S..([ST])...
+MOD_CK2_1	...([ST])..E
+MOD_CMANNOS	(W)..W
+MOD_Cter_Amidation	(.)G[RK][RK]
+MOD_GlcNHglycan	[ED]{0,3}.(S)[GA].
+MOD_GSK3_1	...([ST])...[ST]
+MOD_N-GLC_1	.(N)[^P][ST]..
+MOD_N-GLC_2	(N)[^P]C
+MOD_NMyristoyl	^M{0,1}(G)[^EDRKHPFYW]..[STAGCN][^P]
+MOD_OFUCOSY	C.{3,5}([ST])C
+MOD_OGLYCOS	C.(S).PC
+MOD_PIKK_1	...([ST])Q..
+MOD_PK_1	[RK]..(S)[VI]..
+MOD_PKA_1	[RK][RK].([ST])[^P]..
+MOD_PKA_2	.R.([ST])[^P]..
+MOD_PKB_1	R.R..([ST])[^P]..
+MOD_PLK	.[DE].([ST])[ILFWMVA]..
+MOD_ProDKin_1	...([ST])P..
+MOD_SPalmitoyl_2	G(C)M[GS][CL][KP]C
+MOD_SPalmitoyl_4	^M{0,1}G(C)..S[AKS]
+MOD_SUMO	[VILMAFP](K).E
+MOD_TYR_CSK	[TAD][EA].Q(Y)[QE].[GQA][PEDLS]
+MOD_TYR_DYR	..[RKTC][IVL]Y[TQHS](Y)[IL]QSR
+MOD_TYR_ITAM	[DEN]..(Y)..[LI].{6,12}(Y)..[LI]
+MOD_TYR_ITIM	[ILV].(Y)..[ILV]
+MOD_TYR_ITSM	..T.(Y)..[IV]
+MOD_WntLipid	[ETA](C)[QERK]..F...RWNC[ST]
+TRG_AP2beta_CARGO_1	[DE].{1,2}F[^P][^P][FL][^P][^P][^P]R
+TRG_Cilium_Arf4_1	QV.P.$
+TRG_Cilium_RVxP_2	RV.P.
+TRG_ENDOCYTIC_2	Y..[LMVIF]
+TRG_ER_diArg_1	([LIVMFYWPR]R[^YFWDE]{0,1}R)|(R[^YFWDE]{0,1}R[LIVMFYWPR])
+TRG_ER_diLys_1	K.{0,1}K.{2,3}$
+TRG_ER_FFAT_1	[DE].{0,4}E[FY][FYK]D[AC].[ESTD]
+TRG_ER_KDEL_1	[KRHQSAP][DENQT]EL$
+TRG_Golgi_diPhe_1	Q.{6,6}FF.{6,7}$
+TRG_LysEnd_APsAcLL_1	[DERQ]...L[LVI]
+TRG_LysEnd_APsAcLL_3	[DET]E[RK].PL[LI]
+TRG_LysEnd_GGAAcLL_1	D..LL.{1,2}$
+TRG_LysEnd_GGAAcLL_2	S[LW]LD[DE]EL[LM]
+TRG_NES_CRM1_1	([DEQ].{0,1}[LIM].{2,3}[LIVMF][^P]{2,3}[LMVF].[LMIV].{0,3}[DE])|([DE].{0,1}[LIM].{2,3}[LIVMF][^P]{2,3}[LMVF].[LMIV].{0,3}[DEQ])
+TRG_NLS_Bipartite_1	[KR][KR].{7,15}[^DE]((K[RK])|(RK))(([^DE][KR])|([KR][^DE]))[^DE]
+TRG_NLS_MonoCore_2	[^DE]((K[RK])|(RK))[KRP][KR][^DE]
+TRG_NLS_MonoExtC_3	[^DE]((K[RK])|(RK))(([^DE][KR])|([KR][^DE]))(([PKR])|([^DE][DE]))
+TRG_NLS_MonoExtN_4	(([PKR].{0,1}[^DE])|([PKR]))((K[RK])|(RK))(([^DE][KR])|([KR][^DE]))[^DE]
+TRG_PEX	W...[FY]
+TRG_PTS1	(.[SAPTC][KRH][LMFI]$)|([KRH][SAPTC][NTS][LMFI]$)
+TRG_PTS2	^.{1,40}R[^P][^P][^P][LIV][^P][^P][HQ][LIF]

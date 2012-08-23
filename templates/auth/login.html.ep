@@ -1,0 +1,13 @@
+<%= include 'header' %>
+<%= include 'navbar', section => 'results' %>
+	<div class="container-fluid">
+	<div class="row-fluid">
+        <div class="span12">
+            <div class="hero-unit">
+    <h1>Welcome <%= session 'first_name' %> <%= session 'last_name' %></h1>  
+    <p>Your email address is hopefully: <%= session 'user_email' %></p>
+    </div> <!-- /hero-unit -->
+    </div> <!-- /span12 -->
+	</div> <!-- /row-fluid -->
+	</div> <!-- /container-fluid -->
+<%= include 'footer' %>

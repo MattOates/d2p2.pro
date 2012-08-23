@@ -1,0 +1,85 @@
+% title 'Disorder';
+% my $block = begin
+% my ($heading, $blurb, $url, $size) = @_;
+	<div class="span<%= $size %>">
+	 <h2><%= $heading %></h2>
+	 <p><%= $blurb %></p>
+	 <p><a class="btn" href="<%= $url %>">Go &raquo;</a></p>
+	</div><!--/span4-->
+% end
+
+	<%= include 'header' %>
+    <%= include 'navbar', section => 'Home' %>
+	<div class="row">
+	<div class="span12">
+		<div class="hero-unit">
+        <h1>D<sup>2</sup>P<sup>2</sup></h1>
+		<h2>Database of Disordered Protein Predictions</h2>
+        <p>A community resource for pre-computed disorder predictions over a large library of known amino sequence. Goals of the database include making statistical comparisons of the various prediction methods freely available to the prediction community. As well as facilitating biological investigation of the disordered protein space.</p>
+        <div class="row" style="margin-top:2em;">
+        <div class="span8 offset1">
+        <p><strong>12,314,806&nbsp;sequences</strong> in <a href="<%= url '/about/genomes' %>"><strong>1,765&nbsp;genomes</strong></a> from <strong>1,256&nbsp;distinct&nbsp;species</strong>, with disorder predicted from <a href="<%= url '/about/predictors' %>"><strong>5&nbsp;disorder&nbsp;predictors</strong></a>, and <strong>2,055&nbsp;SCOP&nbsp;superfamilies</strong> predicted by SUPERFAMILY.</p>
+        <p><a href="<%= url '/about' %>" class="btn btn-primary btn-large pull-right">
+			Learn more <i class="icon-chevron-right icon-white"></i>
+        </a></p> 
+        </div><!--/span8-->
+        </div><!--/row-->
+        </div><!--/hero-unit-->
+        <div id="no-svg" class="alert alert-block" style="display:none;">
+            <a class="close" data-dismiss="alert" href="#">×</a>
+            <h2 class="alert-heading">Sorry!</h2>
+            <p>Your browser doesn't have native SVG image support by default. This site makes heavy use of interactive diagrams built with SVG and other HTML5 components. You may wish to update to the latest version of your browser for a quality assured experience. Please turn on JavaScript for this site if you haven't already so that we can compensate.<br /><br />
+            The latest browsers supporting this technology: <a href="http://windows.microsoft.com/en-GB/internet-explorer/downloads/ie-9/worldwide-languages">Internet Explorer &ge;9.0</a>, <a href="http://www.mozilla.org/en-US/firefox/new/">Firefox</a>, <a href="https://www.google.com/intl/en/chrome/browser/">Chrome</a>, <a href="http://www.apple.com/safari/">Safari</a>, <a href="http://www.opera.com/download/">Opera</a>.</p>
+        </div>
+        <div class="row">
+        <div class="span4">
+	            <h2>Protein Search</h2>
+	            <p>Search for a specific protein and view the SCOP domain architecture alongside the disordered region predictions.</p>
+                <p><a class="btn offset1 span1" href="<%= url '/search' %>"><img width="100%" src="<%= url '/img/icons/search.png' %>" /> Search</a></p>
+	        </div><!--/span6-->
+        <div class="span4">
+	            <h2>Browse</h2>
+                <p>Search for sequences of interest based on <abbr title="Gene Ontology">GO</abbr> term, taxonomic inclusion, ammount disordered.</p>
+                <p><a class="btn offset1 span1" href="<%= url '/search/build' %>"><img width="100%" src="<%= url '/img/icons/browse.png' %>" /> Browse</a></p>
+	    </div><!--/span6-->
+        <div class="span4">
+	            <h2>Download</h2>
+                <p>Download our database for your own research. Current dump options are limited, but soon to improve.</p>
+                <p><a class="btn offset1 span1" href="<%= url '/download' %>"><img width="100%" src="<%= url '/img/icons/download.png' %>" /> Download</a></p>
+	    </div><!--/span6-->
+
+
+		</div><!--/row-->
+        <div class="row" style="margin-top:2em;">
+            <div class="span4">
+                <div class="well">
+	            <h2>Database</h2>
+	            <p>View status information about the current state of the database.</p>
+                <p><a class="btn" href="<%= url '/about/database' %>">Go <i class="icon-chevron-right"></i></a></p>
+                </div>  
+	        </div><!--/span4-->
+
+             <div class="span4">
+                <div class="well">
+	            <h2>Predictors</h2>
+	            <p>View statistics and information on the various disorder predictors included in the database.</p>
+                <p><a class="btn" href="<%= url '/about/predictors' %>">Go <i class="icon-chevron-right"></i></a></p>
+                </div>  
+	        </div><!--/span4-->
+            <div class="span4">
+                <div class="well">
+	            <h2>Genomes</h2>
+	            <p>Information on the genomes included in the database.</p>
+                <p><a class="btn" href="<%= url '/about/genomes' %>">Go <i class="icon-chevron-right"></i></a></p>
+                </div>  
+            </div><!--/span4-->
+		</div><!--/row-->
+	</div><!--/span12-->
+	</div><!--/row-->
+    <script>
+        if ( ! document.implementation.hasFeature("http://www.w3.org/TR/SVG11/feature#BasicStructure", "1.1")) {
+            $('#no-svg').fadeIn('slow').delay(2000);
+        }
+    </script>
+	<%= content %>
+	<%= include 'footer' %>

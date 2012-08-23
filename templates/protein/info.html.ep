@@ -1,0 +1,39 @@
+<%= include 'header' %>
+<%= include 'navbar', section => 'results' %>
+	<div class="container-fluid">
+	<div class="row-fluid">
+	<div class="span12">
+		<h1>Info for protein <%=$pid%></h1>
+        <p>Some blurb should go here blah. Has comb <%= $comb %></p>
+		<div class="row-fluid">
+		<div class="span3">
+		<h2>Disorder assignments</h2>
+		<table>
+		<thead>
+		<tr>
+		<th>start</th><th>end</th><th>predictor</th>
+		</tr>
+		</thead>
+		</table>
+		</div><!--span3-->
+		<div class="span3">
+		<h2>Structure assignments</h2>
+		<table>
+		<thead>
+		<tr>
+		<th>E-val</th><th>start</th><th>end</th><th>superfamily</th>
+		</tr>
+		</thead>
+		</table>
+		</div><!--span3-->
+		<div class="span6">
+		<figure>
+			<embed src="/img/disorder.svg" type="image/svg+xml" width="100%" height="300px" class="svg" />
+			<figcaption>Dissorder and SUPERFAMILY assignments for protein <%=$pid%></figcaption>
+		</figure>
+		</div><!--span6-->
+		</div><!--row-fluid-->
+	</div> <!-- /span12 -->
+	</div> <!-- /row-fluid -->
+	</div> <!-- /container-fluid -->
+<%= include 'footer' %>

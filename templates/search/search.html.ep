@@ -1,0 +1,136 @@
+<%= include 'header' %>
+<%= include 'navbar', section => 'search' %>
+<%
+my $default_format = 'fasta';
+my $formats = {
+    fasta => "FASTA",
+    tab => 'Tab-delimited (ID\tSequence\n)',
+    abi => "ABI tracefile",
+    ace => "Ace database",
+    agave => "AGAVE XML",
+    alf => "ALF tracefile",
+    bsml => "BSML",
+    chadoxml => "CHADO sequence",
+    flybase_chadoxml => "Flybase CHADO XML",
+    chaos => "CHAOS sequence",
+    chaosxml => "CHAOS XML",
+    ctf => "CTF tracefile",
+    embl => "EMBL database",
+    entrezgene => "Entrez Gene ASN1",
+    exp => "Staden EXP",
+    metafasta => "Meta FASTA",
+    game => "GAME XML",
+    gcg => "GCG",
+    genbank => "GenBank",
+    interpro => "InterProScan XML",
+    kegg => "KEGG",
+    lasergene => "Lasergene",
+    locuslink => "LocusLink",
+    phd => "Phred",
+    pir => "PIR database",
+    pln => "PLN tracefile",
+    seqxml => "SeqXML sequence ",
+    strider => "DNA Strider",
+    swiss => "SwissProt",
+    tigr => "TIGR XML",
+    tigrxml => "TIGR Coordset XML",
+    tinyseq => "NCBI TinySeq XML",
+    ztr => "ZTR tracefile"
+};
+
+my $error = stash 'error';
+my $example_sequence =
+'&gt;AT1G76180.1<br />
+MAEEIKNVPEQEVPKVATEESSAEVTDRGLFDFLGKKKDETKPEETPIASEFEQKVHISEPEPEVKHESLLEKLHRSDSSSSSSSEEEGSDGEKRKKKKEKKKPTTEVEVKEEEKKGFMEKLKEKLPGHKKPEDGSAVAAAPVVVPPPVEEAHPVEKKGILEKIKEKLPGYHPKTTVEEEKKDKE<br />
+&gt;ENSP00000296435 Cathelicidin antimicrobial peptide<br />
+MKTQRDGHSLGRWSLVLLLLGLVMPLAIIAQVLSYKEAVLRAIDGINQRSSDANLYRLLDLDPRPTMDGDPDTPKPVSFTVKETVCPRTTQQSPEDCDFKKDGLVKRCMGTVTLNQARGSFDISCDKDNKRFALLGDFFRKSKEKIGKEFKRIVQRIKDFLRNLVPRTES';
+%>
+	<div class="container">
+	<div class="row">
+        <div class="span12">
+            <h1>Search</h1>
+            <div class="row" style="margin-top:2em;">
+            <form id="seq-search-form" class="span6" action="<%= url '/search/sequence' %>" method="post">
+            <fieldset class="span6">
+            <legend>By Amino Sequence</legend>
+            <div class="alert alert-error" style="display:none">
+              <h4 class="alert-heading">Sorry</h4>
+              <div id="seq-search-message"></div>
+            </div>
+            % if (exists $error->{'sequence'}) {
+            <div class="alert alert-<%= $error->{'sequence'}{'type'} %>">
+              <a class="close" data-dismiss="alert" href="#">×</a>
+              <h4 class="alert-heading"><%= $error->{'sequence'}{'title'} %></h4>
+                  <%= $error->{'sequence'}{'message'} %>
+            </div>
+            % }
+            <div class="control-group">
+            <div class="controls">
+                <label class="control-label" for="format">Format</label>
+                <select id="format" name="format" required>
+                    % foreach my $format (sort {$a cmp $b} keys %$formats) {
+                    % my $selected = ($format eq $default_format)?'selected="selected" ':'';
+                    <option <%=$selected%>value="<%=$format%>"><%==$formats->{$format}%></option>
+                    %}
+                </select>
+                <label class="control-label" for="sequence">Sequences</label>
+                <textarea class="span6" rows="10" id="sequence" name="sequence" required="required"></textarea>
+                <input class="btn btn-primary btn-large pull-right" type="submit" value="Match Sequence" />
+                <input class="btn btn-primary btn-large pull-right" type="submit" value="BLAST" disabled />
+                <p class="help-block">Please makesure your sequence is well formatted. Default is FASTA.<br /><br />
+                <%== $example_sequence %>
+                </p>
+                </row>
+            </div><!--controls-->
+            </div><!--control-group-->
+            </fieldset>
+        </form>
+        <div class="span1"><h2 style="margin-top:8em; text-align:center; margin-left:1ex;">Or</h2></div>
+        <form method="get" id="seqid-search-form" class="span5" action="<%= url '/search/seqid' %>">
+           <fieldset class="span5">
+            <legend>By Sequence ID</legend>
+            <div id="seqid-search-message"></div>
+            % if (exists $error->{'seqid'}) {
+            <div class="alert alert-<%= $error->{'seqid'}{'type'} %>">
+              <a class="close" data-dismiss="alert" href="#">×</a>
+              <h4 class="alert-heading"><%= $error->{'seqid'}{'title'} %></h4>
+                  <%= $error->{'seqid'}{'message'} %>
+            </div>
+            % }
+            <div class="control-group">
+            <label class="control-label" for="seqid">Genome project sequence ID. Including UniProt where included.</label>
+            <div class="controls">
+                <textarea class="span5" rows="10" id="seqid" name="seqid" required="required"></textarea>
+                <input class="btn btn-primary btn-large pull-right" type="submit" value="Find SeqID" />
+                <p class="help-block">Please list your sequence IDs one per line, or space separated:<br /><br />
+                ENSP00000296435<br />
+                AT1G76180.1<br />
+                ENSP00000316779<br />
+                ENSP00000365281<br />
+                </p>
+            </div><!--controls-->
+            </div><!--control-group-->
+            </fieldset>
+        </form>
+
+    </div>
+	</div> <!-- /span12 -->
+	</div> <!-- /row-fluid -->
+	</div> <!-- /container-fluid -->
+
+    <script>
+        $(document).ready(function(){
+            $('#seq-search-form').html5form({
+                messages: 'en',
+                errorDiv: '#seq-search-message',
+                allBrowsers: true,
+                errorShowHide: true,
+                async: false,
+            });
+            $('#seqid-search-form').html5form({
+                messages: 'en',
+                errorDiv: '#seqid-search-message',
+            });
+        });
+    </script>
+<%= include 'footer' %>

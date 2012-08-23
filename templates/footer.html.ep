@@ -1,0 +1,86 @@
+    <br />
+    <footer style="margin-top:2em;"> 
+    <div class="row">
+    <div class="span4">
+    <h5>People</h5>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt><a href="mailto:Matt.Oates@bristol.ac.uk?Subject=About%20D2P2">Matt Oates</a></dt>
+        <dd>Website, and database analysis.<br />IUPred-S predictions.</dd>
+        <dt><a href="mailto:promero@compbio.iupui.edu?Subject=About%VLXT/VSL2b">Dr Pedro Romero</a></dt>
+        <dd>VLXT &amp; VSL2b predictions.</dd>
+        <dt><a href="mailto:T.ISHIDA@bi.cs.titech.ac.jp?Subject=About%20PrDOS">Dr Takashi Ishida</a></dt>
+        <dd>PrDOS predictions.</dd>
+        <dt><a href="mailto:mohamed.ghalwash@temple.edu?Subject=About%20PV2">Mohamed Ghalwash</a></dt>
+        <dd>PV2 predictions</dd>
+        <dt><a href="mailto:mizianty@ualberta.ca?Subject=About%20Espritz/IUPred-L">Marcin Mizianty</a></dt>
+        <dd>Espritz &amp; IUPred-L predictions..</dd>
+        <dt><a href="mailto:vuversky@health.usf.edu?Subject=About%20VLXT/VSL2b">Dr Vladimir Uversky</a></dt>
+        <dd>VLXT &amp; VSL2b predictions.</dd>
+        <dt><a href="mailto:bxue@health.usf.edu?Subject=About%20VLXT/VSL2b">Dr Bin Xue</a></dt>
+        <dd>VLXT &amp; VSL2b predictions.</dd>
+        <dt><a href="mailto:bxue@health.usf.edu?Subject=About%20VLXT/VSL2b">Dr Zsuzsanna Dozstanyi</a></dt>
+        <dd>IUPred author.</dd>
+        <dt><a href="mailto:zobrad@gmail.com">Prof Zoran Obradovic</a></dt>
+        <dd>PV2 predictions.</dd>
+        <dt><a href="mailto:lkurgan@ece.ualberta.ca">Prof Lukasz Kurgan</a></dt>
+        <dd>Espritz &amp; IUPred-L predictions..</dd>
+        <dt><a href="mailto:kedunker@iupui.edu">Prof Keith Dunker</a></dt>
+        <dd>VLXT &amp; VSL2b prediction and project coordinator.</dd>
+        <dt><a href="mailto:gough@cs.bris.ac.uk">Prof Julian Gough</a></dt>
+        <dd>Source sequence collection, and SUPERFAMILY predictions.</dd>
+    </dl>
+    </div><!--/span4-->
+    <div class="span4">
+    <h5>Disorder</h5>
+    <hr />
+    <dl>
+        <dt><a href="http://www.pondr.com/pondr-tut2.html" target="new">PONDR VL-XT</a></dt>
+        <dt><a href="http://" target="new">PONDR VSL2b</a></dt>
+        <dt><a href="http://prdos.hgc.jp" target="new">PrDOS</a></dt>
+        <dt><a href="mailto:mohamed.ghalwash@temple.edu" target="new">PV2</a></dt>
+        <dt><a href="http://iupred.enzim.hu" target="new">IUPred+ANCHOR</a></dt>
+   </dl>
+ 
+    <h5>Structure</h5>
+    <hr />
+    <dl>
+        <dt><a href="http://supfam.org" target="new">SUPERFAMILY</a></dt>
+        <dd>Database of homology prediction for known structure and function using <abbr title="Hidden Markov Models">HMMs</abbr>.</dd>
+    </dl>
+    </div><!--/span4-->
+
+    <div class="span4">
+    <h5>Feedback</h5>
+    <hr />
+    <form id="site-feedback-form" class="" method="post" action="<%= url '/feedback/post' %>">
+            <div class="control-group">
+            <div class="controls">
+                <input type="hidden" id="type" name="type" value="generic" />
+                <label class="control-label" for="name">Name:</label>
+                <input type="text" id="name" name="name" value="" required="required" placeholder="Your Name" />
+                <label class="control-label" for="email">E-mail:</label>
+                <input type="email" id="email" name="email" value="" required="required" placeholder="you.name@place.ac" />
+                <label class="checkbox" for="contact_email">
+                    <input type="checkbox" id="contact_email" name="contact_email" value="1" /> Can we contact you be e-mail?
+                </label>
+                <label class="control-label" for="feedback">Feedback:</label>
+                <textarea class="span4" id="feedback" name="feedback" required="required" placeholder="Your comments here."></textarea>
+                <button class="btn btn-success btn-small pull-right"><i class="icon-comment icon-white"></i> Send Feedback</button>
+            </div>
+            </div>
+        </form>
+    </div><!--/span4-->
+    
+    </div><!--/row-->
+	<p>&copy; 2012</p>
+    </footer>
+    </div><!--/container-->
+    </div><!--/content-->
+    <script>
+        $(document).ready(function(){
+            $('#site-feedback-form').html5form();    
+        });
+    </script>
+</body>
+</html>

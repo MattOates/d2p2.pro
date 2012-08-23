@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title><%= title %></title>
+	
+	<!-- Meta tags -->
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- CSS -->
+	<link rel="stylesheet" href="<%= url '/css/bootstrap.css' %>" />
+	<link rel="stylesheet" href="<%= url '/css/layout-styles.css' %>" />
+	<link rel="stylesheet" href="<%= url '/css/bootstrap-responsive.css' %>" />
+	<link rel="stylesheet" href="<%= url '/css/styles.css' %>" />
+    <link type="text/css" href="<%= url '/css/smoothness/jquery-ui-1.8.18.custom.css' %>" rel="stylesheet" />  	
+
+    <!-- Page specific CSS -->
+    % my $styles = stash 'styles';
+    % if (defined $styles) {
+    % foreach my $style (@$styles) {
+    <link type="text/css" rel="stylesheet" href="<%= $style %>" charset="utf-8" />
+    %}}
+
+	<!-- Icons -->
+	<link rel="shortcut icon" href="<%= url '/img/favicon.ico' %>">
+	<link rel="apple-touch-icon" href="<%= url '/img/apple-touch-icon.png' %>">
+	<link rel="apple-touch-icon" sizes="72x72" href="<%= url '/img/apple-touch-icon-72x72.png' %>">
+	<link rel="apple-touch-icon" sizes="114x114" href="<%= url '/img/apple-touch-icon-114x114.png' %>">
+
+    <!-- jQuery and Bootstrap -->
+    <script type="text/javascript" src="<%= url '/js/jquery-1.7.1.min.js' %>" charset="utf-8"></script>
+    <script type="text/javascript" src="<%= url '/js/jquery-ui-1.8.18.custom.min.js' %>" charset="utf-8"></script>
+    <script type="text/javascript" src="<%= url '/js/bootstrap.js' %>" charset="utf-8"></script>
+
+    <!-- Add HTML5 form validation for all browsers that don't already support it -->
+    <script type="text/javascript" src="<%= url '/js/jquery.html5form-1.5.js' %>"></script>
+
+	<!-- IE6-8 support of HTML5 elements and SVG -->
+	<!--[if lt IE 9]>
+        <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <script src="<%= url '/js/svgweb/svg.js' %>" data-path="<%= url '/js/svgweb/' %>"></script>
+	<![endif]-->
+
+    <!-- Page specific JS -->
+    % my $scripts = stash 'scripts';
+    % if (defined $scripts) {
+    % foreach my $script (@$scripts) {
+    <script type="text/javascript" src="<%= $script %>" charset="utf-8"></script>
+    %}}
+	</head>
+<body>
+    <div id="content">
+    <div class="container">
+	

@@ -1,0 +1,94 @@
+% title 'Disorder';
+	<%= include 'header' %>
+    <%= include 'navbar', section => 'About' %>
+	<div class="row">
+	<div class="span12">
+		<div class="hero-unit">
+            <h1>Predictors</h1>
+		    <p>Details on the predictors included in the database, both protein structure and disorder. Algorithm authorship is stated where necessary, as well as a contact details for all data providers.</p>
+            <p><a href="<%= url '/search' %>" class="btn btn-primary btn-large">
+			    Search Instead &raquo;
+            </a></p>
+        </div><!--/hero-unit-->
+
+        <h1 class="page-header">Disorder prediction</h1>
+        % foreach my $predictor (@$disorder_predictors) {
+        <div class="row" style="margin-top:2em;">
+        <div class="span7">
+	            <h2 style="color:#<%= $predictor->{colour} %>"><%== $predictor->{name} %></h2>
+                % if ($predictor->{comments}) {
+                    <div class="alert alert-info">
+                        <a class="close" data-dismiss="alert" href="#">×</a>
+                        <h4 class="alert-heading">Status</h4>
+                        <p><%== $predictor->{comments}%></p>
+                    </div>
+                %}
+                <h3>Description of method</h3>
+	            <p style="text-align:justify;"><%== $predictor->{description} %></p>
+               <p><span class="label">cite</span>&nbsp;<%== $predictor->{citation} %><br /></p>
+                <h3>People involved</h3>
+                <p>Authors of the method are highlighted in <strong>bold</strong>.</p>
+                % my $providers = join ",", map { "<a href=\"mailto:$_->{email}\">$_->{first_name} $_->{second_name}</a>" } grep { $_->{predictor} == $predictor->{predictor} and $_->{made_predictions} } @$people;
+                <p>Please direct any queries about very specific predictions and methodology to <%== $providers %> who provided the source data.</p>
+                <ul>
+                % foreach my $person (grep { $_->{predictor} == $predictor->{predictor} } @$people) {
+                %   if($person->{is_author}) {
+                    <li><strong><%= $person->{title} %> <%= $person->{first_name} %> <%= $person->{second_name} %></strong>, <%= $person->{affiliation} %></li>
+                %   } else {
+                    <li><%= $person->{title} %> <%= $person->{first_name} %> <%= $person->{second_name} %>, <%= $person->{affiliation} %></li>
+                %   }
+                %}
+                </ul>
+                % if ($predictor->{url}) {
+                <p><a style="color:#<%= $predictor->{colour} %>" class="btn pull-right" href="<%= $predictor->{url} %>">Home Website &raquo;</a></p>
+                %}
+	        </div><!--/span7-->
+        <div class="span5">
+            <table style="margin-top:3em;">
+            <tr><td>Histograms and global stats to go here.</td></tr>
+            </table>
+	    </div><!--/span5-->
+		</div><!--/row-->
+        % }
+
+        <h1 class="page-header">Structure prediction</h1>
+        % foreach my $predictor (@$structure_predictors) {
+        <div class="row" style="margin-top:2em;">
+        <div class="span12">
+	            <h2 style="color:#<%= $predictor->{colour} %>"><%== $predictor->{name} %></h2>
+                % if ($predictor->{comments}) {
+                    <div class="alert alert-info">
+                        <a class="close" data-dismiss="alert" href="#">×</a>
+                        <h4 class="alert-heading">Status</h4>
+                        <p><%== $predictor->{comments}%></p>
+                    </div>
+                %}
+                <h3>Description of method</h3>
+	            <p><%== $predictor->{description} %></p>
+                <p><span class="label">cite</span>&nbsp;<%== $predictor->{citation} %><br /></p>
+                <h3>People involved</h3>
+                <p>Authors of the method are highlighted in <strong>bold</strong>.</p>
+                % my $providers = join ",", map { "<a href=\"mailto:$_->{email}\">$_->{first_name} $_->{second_name}</a>" } grep { $_->{predictor} == $predictor->{predictor} and $_->{made_predictions} } @$people;
+                <p>Please direct any queries about very specific predictions and methodology to <%== $providers %> who provided the source data.</p>
+                <ul>
+                % foreach my $person (grep { $_->{predictor} == $predictor->{predictor} } @$people) {
+                %   if($person->{is_author}) {
+                    <li><strong><%= $person->{title} %> <%= $person->{first_name} %> <%= $person->{second_name} %></strong>, <%= $person->{affiliation} %></li>
+                %   } else {
+                    <li><%= $person->{title} %> <%= $person->{first_name} %> <%= $person->{second_name} %>, <%= $person->{affiliation} %></li>
+                %   }
+                %}
+                </ul>
+                % if ($predictor->{url}) {
+                <p><a style="color:#<%= $predictor->{colour} %>" class="btn pull-right" href="<%= $predictor->{url} %>">Home Website &raquo;</a></p>
+                %}
+	        </div><!--/span12-->
+		</div><!--/row-->
+        % }
+
+
+	</div><!--/span12-->
+	</div><!--/row-->
+	<%= include 'footer' %>
+
+</html>

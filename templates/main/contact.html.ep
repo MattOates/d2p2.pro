@@ -1,0 +1,45 @@
+% title 'Disorder';
+	<%= include 'header' %>
+    <%= include 'navbar', section => 'Home' %>
+    <div id="content">
+    <div class="container">
+	<div class="row">
+	<div class="span12">
+        <h1>Contact Us</h1>
+        <div id="contact-blurb" class="span10 offset1" style="margin-top:2em;">
+            <p><a href="mailto:matt.oates@bristol.ac.uk?Subject=About%20Your%20Database">Matt Oates</a> is the corresponding author for the database's website and dump. For specific predictors please contact the corresponding author listed on our <a href="<%= url '/about/predictors' %>">about predictors</a> page.</p> 
+        </div>
+        <form id="contact-form" class="span8 offset2" style="margin-top:2em" method="post" action="<%= url '/feedback/post' %>">
+            <div class="control-group">
+                <div class="controls">
+                    <div class="row">
+                <div class="span3">
+                <input type="hidden" id="type" name="type" value="contact" />
+                <label class="control-label" for="name">Name:</label>
+                <input type="text" id="name" name="name" value="" required="required" placeholder="Your Name" />
+                <label class="control-label" for="email">E-mail:</label>
+                <input type="email" id="email" name="email" value="" required="required" placeholder="you.name@place.ac" />
+                <label class="checkbox" for="contact_email">
+                    <input type="checkbox" id="contact_email" name="contact_email" value="1" /> Can we contact you be e-mail?
+                </label>
+                </div>
+                <div class="span5">
+                <label class="control-label" for="feedback">Message:</label>
+                <textarea class="span5" id="feedback" name="feedback" rows="10" required="required" placeholder="I'd like to get *all* the data for something really specific can you help me?"></textarea>
+            </div>
+        </div>
+                <button class="btn btn-success btn-small pull-right"><i class="icon-comment icon-white"></i> Contact</button>
+            </div>
+            </div>
+        </form>
+
+
+
+	</div><!--/span12-->
+	</div><!--/row-->
+	</div><!--/container-->
+	<%= content %>
+	</div><!--/content-->
+	<%= include 'footer' %>
+
+</html>

@@ -1,0 +1,48 @@
+% title 'Page Not Found';
+<%= include 'header' %>
+<%= include 'navbar', section => 'Error' %>
+    <div class="content">
+	<div class="container">
+	<div class="row">
+	<div class="span12">
+		<div class="hero-unit">
+		<h1>Sorry Page Not Found</h1>
+		            <p>We're not sure what happened... Please feel free to send us feedback on where we've made a mistake or can improve usability.</p>
+		</div><!--/hero-unit-->
+	</div><!--/span12-->
+	</div><!--/row-->
+    <div class="row">
+
+        <form id="feedback-form" class="well span8 offset2" method="post" action="<%= url '/feedback/post' %>">
+            <fieldset>
+            <legend>Feedback</legend>
+            <div class="control-group">
+                <div class="controls">
+                    <div class="row">
+                <div class="span3">
+                <input type="hidden" id="type" name="type" value="404" />
+                <label class="control-label" for="name">Name:</label>
+                <input type="text" id="name" name="name" value="" required="required" placeholder="Your Name" />
+                <label class="control-label" for="email">E-mail:</label>
+                <input type="email" id="email" name="email" value="" required="required" placeholder="you.name@place.ac" />
+                <label class="checkbox" for="contact_email">
+                    <input type="checkbox" id="contact_email" name="contact_email" value="1" /> Can we contact you be e-mail?
+                </label>
+                </div>
+                <div class="span5">
+                <label class="control-label" for="feedback">Can you describe what went wrong, or what you wanted to do?</label>
+                <textarea class="span5" id="feedback" name="feedback" required="required" placeholder="Example: I tried to search for a protein by sequence that used to work, but now it's broken."></textarea>
+            </div>
+        </div>
+                <button class="btn btn-success btn-small pull-right"><i class="icon-comment icon-white"></i> Send Feedback</button>
+            </div>
+            </div>
+            </fieldset>
+        </form>
+
+
+    </div><!--/row-->
+	</div><!--/container-->
+	<%= content %>
+	</div><!--/content-->
+<%= include 'footer' %>

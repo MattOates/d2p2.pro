@@ -1,0 +1,116 @@
+<%= include 'header' %>
+<%= include 'navbar', section => 'search' %>
+
+	<div class="container">
+	<div class="row">
+        <div class="span12">
+		<h1>Browse (Under Construction) </h1>
+        <div class="alert alert-error">This form is not functional, but represents future features coming soon using data already present in the database.</div>
+        <form class="form-horizontal" action="<%= url '/search/sequence' %>">
+            
+            <div class="offset3 span6" style="margin-top:2em;">
+            <fieldset>
+                <legend>Constrain by taxonomy</legend>
+                <label for="lca">Last common ancestor:</label><input type="text" size="20" id="lca" name="lca" />
+                <p class="help-block">Specify the NCBI taxon ID of the last common ancestor of the genomes you wish to search.</p>
+                <label for="genomes">Genome list:</label>
+                <select id="genomes" name="genomes" multiple>
+                <option value="hs">Homo sapien</option>
+                <option value="at">Arabidopsis thaliana</option>
+                <option value="">etc...</option>
+                </select>
+                <p class="help-block">Select the genomes you wish to include from the list.</p>
+                <label for="superfamily">SUPERFAMILY database ID:</label><input type="text" size="20" id="sunid" name="sunid" />
+                <p class="help-block">You can enter either superfamily or family level IDs.</p>
+                <label for="pdb">PDB ID:</label><input type="text" size="20" id="pdbid" name="pdbid" />
+                <p class="help-block">Please space separate your ID values.</p>
+            </fieldset>
+            </div>
+
+            <div class="offset3 span6">
+            <fieldset>
+            <legend>Disorder Coverage</legend>
+            <label style="checkbox" for="coverage">Minimum <input type="text" size="3" id="coverage" name="coverage" />% of the protein should be predicted disordered.</label>
+            <div id="slider-coverage"></div>
+            <span style="float:left;width:2em;">0%&nbsp;Anything</span>
+            <span style="float:right;width:2em;">&ge;98%&nbsp;IUPs&nbsp;Only</span>
+            </fieldset>
+            </div>
+
+            <div class="offset3 span6" style="margin-top:2em;">
+            <fieldset>
+                <legend>Predictor agreement</legend>
+                <label style="checkbox" for="consensus"><input type="text" size="3" id="consensus" name="consensus" />% of predictors should agree on the disordered region.</label>
+                <div id="slider-consensus"></div>
+                <span style="float:left;width:2em;">0%&nbsp;Any</span>
+                <span style="float:right;width:2em;">100%&nbsp;All&nbsp;Predictors</span>
+            </fieldset>
+            </div>
+
+            <div class="offset3 span6" style="margin-top:2em;">
+            <fieldset>
+                <legend>Structural content</legend>
+                <label for="superfamily">Domain name contains:</label><input type="text" size="20" id="superfamily" name="superfamily" />
+                <label for="superfamily">SUPERFAMILY database ID:</label><input type="text" size="20" id="sunid" name="sunid" />
+                <p class="help-block">You can enter either superfamily or family level IDs.</p>
+                <label for="pdb">PDB ID:</label><input type="text" size="20" id="pdbid" name="pdbid" />
+                <p class="help-block">Please space separate your ID values.</p>
+            </fieldset>
+            </div>
+
+            <div class="offset3 span6" style="margin-top:2em;">
+            <fieldset>
+            <legend>Ontologies</legend>
+            <div class="control-group">
+            <label class="control-label" for="go">GO IDs</label>
+            <div class="controls">
+                <input type="text" id="go" id="go"></textarea>
+                <p class="help-block">Please enter GO:IDs space separated.</p>
+            </div>
+            <br />
+            <label class="control-label" for="go">PO IDs</label>
+            <div class="controls">
+                <input type="text" id="go" id="go"></textarea>
+                <p class="help-block">Please enter PO:IDs space separated.</p>
+            </div>
+            <br />
+            <label class="control-label" for="go">DO IDs</label>
+            <div class="controls">
+                <input type="text" id="go" id="go"></textarea>
+                <p class="help-block">Please enter DO:IDs space separated.</p>
+            </div>
+            </fieldset>
+            </div>
+
+        </form>
+	</div> <!-- /span12 -->
+	</div> <!-- /row-fluid -->
+	</div> <!-- /container-fluid -->
+    <script>
+    $(function() {
+        $( "#slider-coverage" ).slider({
+            value:0,
+            min: 0,
+            max: 100,
+            step: 2,
+            slide: function( event, ui ) {
+                $( "#coverage" ).val(ui.value );
+            }
+        });
+        $( "#coverage" ).val($( "#slider-coverage" ).slider( "value" ));
+    });
+    $(function() {
+        $( "#slider-consensus" ).slider({
+            value:0,
+            min: 0,
+            max: 100,
+            step: 25,
+            slide: function( event, ui ) {
+                $( "#consensus" ).val(ui.value );
+            }
+        });
+        $( "#consensus" ).val($( "#slider-consensus" ).slider( "value" ));
+    });
+
+    </script>
+<%= include 'footer' %>
