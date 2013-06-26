@@ -117,13 +117,18 @@ my $nostruct = (defined $cgi->param('nostruct'))?$cgi->param('nostruct'):undef;
 
 #Should we render disorder hits?
 my $draw_disorder = (defined $cgi->param('disorder'))?$cgi->param('disorder'):1;
+my $draw_experiments = (defined $cgi->param('experiment'))?$cgi->param('experiment'):1;
 my $draw_dis_probs = (defined $cgi->param('probs'))?$cgi->param('probs'):undef;
 my $draw_binding = (defined $cgi->param('binding'))?$cgi->param('binding'):1;
 my $draw_consensus = (defined $cgi->param('consensus'))?$cgi->param('consensus'):1;
 my $draw_conflicts = (defined $cgi->param('conflicts'))?$cgi->param('conflicts'):1;
 
+#Should we draw PTMs?
+my $draw_ptms = (defined $cgi->param('ptms'))?$cgi->param('ptms'):1;
+
 #Is this a for-print rendering or for the web
 my $forprint = (defined $cgi->param('forprint'))?1:0;
+my $scale= (defined $cgi->param('scale'))?$cgi->param('scale'):2;
 my $download = (defined $cgi->param('download'))?1:0;
 
 #Downloading assumes printed output
@@ -138,7 +143,7 @@ my $include_weak_hits = (defined $cgi->param('weak'))?$cgi->param('weak'):0;
 $include_weak_hits = ($supfam_labels)?0:$include_weak_hits;
 
 #Do you want callout boxes around those labels, looke more web 2.0!
-my $draw_callouts = (defined $cgi->param('callouts'))?$cgi->param('callouts'):undef;
+my $draw_callouts = (defined $cgi->param('callouts'))?$cgi->param('callouts'):1;
 $draw_labels = 1 if ($draw_callouts); #Callouts imply labels but not vice versa
 
 #Do you want a key at the end of the figure
@@ -160,7 +165,10 @@ if (not $proteins) {
 #Global variables
 my %sf_details;
 my %predictor_details;
+my $num_predictors;
 my %protein_details;
+my %ptm_details;
+my %experiments;
 my $output = '';
 
 my $current_record = 0;
@@ -175,15 +183,22 @@ my $superfamily_db = 'superfamily';
 
 #Formatting config variables
 my $min_width = ($draw_disorder)?500:400; #Deal with short proteins having their SF labels cut short
+my $key_size = 100;
 my $weak_below = 15; #How far below do you want weaker sf hits, negative is above
 my $weak_note = ' (weak support)'; #What should be appended to the structure popup title if its a weaker hit
 my $xpad = 5; #left indentation
 my $ypad = 5; #top indentation
-my $record_height = 230; #how much spacing for a single protein record
+my $record_height = 250; #how much spacing for a single protein record
 my $record_spacing = 20;
 my $dy = $record_height/2; #with the amino acid chain in the middle to begin with, this is a cursor for the vertical position reused in each draw function
-my $disorder_height = 10; #Height of disordered blocks around the amino line
-my $structure_height = 9; #Height of each structural block around the amino line
+my $disorder_height = 7; #Height of disordered blocks around the amino line
+my $disorder_spacing = 15;
+my $binding_height = 5;
+my $structure_height = 10; #Height of each structural block around the amino line
+my $ptm_size = 10; #Size of the PTM dots
+my $ptm_levels = 4; #Different levels the PTM dots can be binned
+my %ptm_colours = ('ACETYLATION' => 'yellow','DI-METHYLATION' => 'blue','METHYLATION' => 'blue','MONO-METHYLATION' => 'blue','O-GlcNAc' => 'orange','PHOSPHORYLATION' => 'red','SUMOYLATION' => 'green','TRI-METHYLATION' => 'blue','UBIQUITINATION' => 'purple');
+my %ptm_abrev = ('ACETYLATION' => 'A','DI-METHYLATION' => 'M2','METHYLATION' => 'M','MONO-METHYLATION' => 'M1','O-GlcNAc' => 'G','PHOSPHORYLATION' => 'P','SUMOYLATION' => 'S','TRI-METHYLATION' => 'M3','UBIQUITINATION' => 'U','PTM' => '?');
 
 =item B<error>
 
@@ -480,11 +495,22 @@ sub get_details {
 			foreach (@$disordered_hits) {
 				push @{$protein_details{$protein}{'disorder'}}, $_;
 			}
-            %predictor_details = %{$dbh->selectall_hashref("SELECT predictor, colour, has_probs, name, type, display_order FROM $disorder_db.predictor;", 'predictor')};
+            %predictor_details = %{$dbh->selectall_hashref("SELECT predictor, colour, has_probs, name, type, display_order, include FROM $disorder_db.predictor;", 'predictor')};
             
             if ($draw_consensus or $draw_conflicts) {
 			    my ($cons, $conf) = $dbh->selectrow_array("SELECT consensus, conflict FROM $disorder_db.protein_consensus_conflict WHERE protein = ?", undef, $protein);
                 if ($cons) {
+
+                    #TODO remove this hack that deals with broken JSON records for very long proteins (Titin et al.)
+                    if ($cons =~ m/[^\]]$/) {
+                        chop $cons;
+                        $cons .= ']';
+                    }
+                    if ($conf =~ m/[^\]]$/) {
+                        chop $conf;
+                        $conf .= ']';
+                    }
+
                     $protein_details{$protein}{'consensus'} = decode_json($cons); 
                     $protein_details{$protein}{'conflict'} = decode_json($conf); 
                 }
@@ -497,7 +523,36 @@ sub get_details {
                 }
             }
 
+            $num_predictors = scalar grep {$predictor_details{$_}{type} eq 'disorder' and $predictor_details{$_}{include} eq 1 } keys %predictor_details;
+            
 		}
+
+        if ($draw_experiments) {
+            my ($num_experiments) = $dbh->selectrow_array("SELECT COUNT(DISTINCT db_id) AS num FROM $disorder_db.dis_experiment WHERE protein = ?",undef,$protein);
+            $protein_details{$protein}{'num_experiments'} = $num_experiments;
+            my $experiments = $dbh->selectall_arrayref("
+                    SELECT name, db_id, start, end, up_id, classification, REPLACE(protein_link, '%protein%', db_id)
+                    FROM $disorder_db.dis_experiment, $disorder_db.external_db
+                    WHERE protein = ? 
+                    AND dis_experiment.external_db = external_db.external_db
+                    ORDER BY dis_experiment.external_db, db_id, start ASC", undef, $protein);
+            if ($experiments and scalar @$experiments) {
+                foreach my $region (@$experiments) {
+                    my ($name, $db_id, @details) = @$region;
+                    $experiments{$protein}{$name}{$db_id} = [] unless exists $experiments{$protein}{$name}{$db_id};
+                    push @{$experiments{$protein}{$name}{$db_id}}, \@details;
+                }
+            }
+        }
+
+        if ($draw_binding) {
+		    my $binding_hits = $dbh->selectall_arrayref("SELECT binding_assignment.start, binding_assignment.end, binding_assignment.predictor FROM $disorder_db.binding_assignment WHERE protein = ? ORDER BY start ASC", undef, $protein);
+			$protein_details{$protein}{'binding'} = [];
+			foreach (@$binding_hits) {
+				push @{$protein_details{$protein}{'binding'}}, $_;
+			}
+
+        }
 		
         unless ($nostruct) {
             #Get strong hits to structure from the SUPERFAMILY ass table
@@ -527,6 +582,15 @@ sub get_details {
                 }
             }
         }
+
+        if ($draw_ptms) {
+            next if exists $ptm_details{$protein};
+            $ptm_details{$protein} = [];
+            my $ptms = $dbh->selectall_arrayref("SELECT locus,type,(disorder_predictions > 0),group_id,seq,amino FROM $disorder_db.ptm_assignment WHERE protein = ? ORDER BY locus ASC",undef,$protein);
+            foreach my $ptm (@$ptms) {
+                push @{$ptm_details{$protein}},  {'locus' => $ptm->[0],'type' => $ptm->[1], 'disordered' => $ptm->[2], 'group_id' => $ptm->[3], 'seq' => $ptm->[4], 'amino' => $ptm->[5]};
+            }
+        }
 	}
 	$dbh->disconnect or die $DBI::errstr;
 	
@@ -545,7 +609,8 @@ sub get_details {
 =cut
 sub header {
 	my ($width, $height) = @_;
-
+    $width *= $scale;
+    $height *= $scale;
 	my $header = <<EOF;
 <?xml version="1.0" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
@@ -580,8 +645,8 @@ EOF
       };
 
       function show_tip(evt) {
-	  var x = evt.clientX + 1;
-	  var y = evt.clientY + 2;
+	  var x = evt.clientX + window.pageXOffset;
+	  var y = evt.clientY + window.pageYOffset;
 	  var hit = evt.target;
 
 	  var title_text = hit.getElementsByTagName('name').item(0);
@@ -654,8 +719,28 @@ EOF
       <stop offset="0%"   stop-color="#cccccc" stop-opacity="0.6"/>
       <stop offset="100%" stop-color="#666666" stop-opacity="0.6"/>
     </linearGradient>
+    <radialGradient id="radial-glow"
+            fx="40%"
+            fy="40%"
+            r="55%"
+            spreadMethod="pad">
+        <stop offset="0%"   stop-color="#cccccc" stop-opacity="0.5" />
+        <stop offset="100%" stop-color="#cccccc" stop-opacity="0.01" />
+    </radialGradient>
+    <filter id="emboss" >
+        <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur"/>
+        <feSpecularLighting in="blur" surfaceScale="-3" style="lighting-color:white" specularConstant="1" specularExponent="16" result="spec" kernelUnitLength="1" >
+            <feDistantLight azimuth="45" elevation="45" />
+        </feSpecularLighting>
+        <feComposite in="spec" in2="SourceGraphic" operator="in" result="specOut"/>
+    </filter>
+        <pattern id="binding" x="0" y="0" width="5" height="5"
+        patternUnits="userSpaceOnUse">
+        <path d="M 0 0 Q .25 5 2.5 2.5 T 5 5"
+            style="stroke: black; fill: none;"/>
+        </pattern>
   </defs>
-  <g transform="translate($xpad,$ypad)">
+  <g transform="translate($xpad,$ypad) scale($scale)">
 EOF
 }
 
@@ -710,20 +795,21 @@ sub callout {
 sub draw_disorder {
 	my ($protein) = @_;
 	my $result = '';
-	my $middle = $dy + ($record_height / 2);
+	my $middle = $dy + ($record_height / 2)-$disorder_spacing;
 	
 	#Draw the disorder hits
 	foreach my $disorder (@{$protein_details{$protein}{'disorder'}}) {
-		my $start = $disorder->[0] -1;
+		my $start = $disorder->[0];
 		my $end = $disorder->[1];
 		my $predictor = $disorder->[2];
+        next if $predictor_details{$predictor}{include} eq 0;
         my $colour = $predictor_details{$predictor}{'colour'}; 
         my $name = $predictor_details{$predictor}{'name'}; 
         my $disporder = $predictor_details{$predictor}{'display_order'}; 
 		my $y = $middle;
         #$y += ($predictor_details{$predictor}{'name'} eq "VLXT")?-($disorder_height+1):1;
         $y -= int($disporder) * ($disorder_height);
-		my $width = $end - $start;
+		my $width = 1 + $end - $start;
 
 		$result .= <<EOF
 	<rect x="$start" y="$y" width="$width" height="$disorder_height" style="fill: url(#disorder); stroke:none; stroke-width:0.0">
@@ -737,6 +823,50 @@ EOF
 		;
 
 	}
+    
+    #Draw the side labels for each disorder predictor, only shown with the key
+    if ($draw_key) {
+    foreach my $predictor (grep {$predictor_details{$_}{'type'} eq 'disorder' and $predictor_details{$_}{include} eq 1 } keys %predictor_details) {
+        my $name = $predictor_details{$predictor}{'name'};
+        my $disporder = $predictor_details{$predictor}{'display_order'}; 
+        my $text_y = $disorder_height + $middle - (int($disporder) * ($disorder_height))-1;
+        my $text_x = $protein_details{$protein}{'length'} + 20;
+        $result .= "<text font-family='arial' font-size='$disorder_height' x='$text_x' y='$text_y'>$name</text>\n";
+    }
+}
+
+    if ($draw_experiments) {
+	    my $y = $dy+$disorder_spacing;
+        foreach my $db (keys %{$experiments{$protein}}) {
+           foreach my $db_id (keys %{$experiments{$protein}{$db}}) {
+                $y += $disorder_height;
+                foreach my $region (@{$experiments{$protein}{$db}{$db_id}}) {
+                    my ($start,$end,$up_id,$classification,$external_link) = @$region;
+                    my $colour = 'rgb(68,459,68)' if $classification eq 'disordered';
+                    $colour = 'rgb(68,166,459)' if $classification eq 'ordered';
+                    $classification = ucfirst $classification;
+                    my $width = 1 + $end - $start;
+		            $result .= <<EOF
+    <a xlink:href="$external_link" xlink:show="new" target="_blank">
+	<rect x="$start" y="$y" width="$width" height="$disorder_height" style="fill: url(#disorder); stroke:none; stroke-width:0.0">
+	</rect>
+	<rect x="$start" y="$y" width="$width" height="$disorder_height" style="opacity: 0.5; fill:$colour; stroke:#000; stroke-width:0.5" onmouseover="show_tip(evt)" onmouseout="hide_tip(evt)">
+		<name>$db $db_id $classification</name>
+		<desc>Length: $width</desc>
+		<range>Range: $start-$end</range>
+		<quality>UniProt: $up_id</quality>
+    </rect>
+    </a>
+EOF
+		            ;
+                }
+            }
+            my $text_y = $y + $disorder_height-1;
+            my $text_x = $protein_details{$protein}{'length'} + 20;
+            $result .= "<text font-family='Arial' font-size='$disorder_height' x='$text_x' y='$text_y'>$db</text>\n";
+        }
+    }
+
 	return $result;
 }
 
@@ -766,7 +896,7 @@ EOF
 		;
 
 	}
-    $result .= "<text x=\"0\" y=\"".($y-2)."\" font-size=\"10\">Consensus</text>";
+    $result .= "<text x=\"0\" y=\"".($y-2)."\" font-size=\"10\" font-family=\"Arial\">Predicted Disorder Agreement</text>";
 	return $result;
 }
 
@@ -781,14 +911,13 @@ sub draw_conflicts {
 	my $middle = $dy + ($record_height / 2) + $disorder_height + 5;
     my $y = $middle + (2*$weak_below) + $structure_height; 
 	
-    my $num_predictors = scalar grep {$predictor_details{$_}{type} eq 'disorder' } keys %predictor_details;
 
 	#Draw the consensus strip
 	foreach my $dx (0..@{$protein_details{$protein}{'conflict'}}-1) {
         next if $protein_details{$protein}{'conflict'}[$dx] == 0;
         my $value;
         $value = $num_predictors / $protein_details{$protein}{'conflict'}[$dx];
-        my ($r,$g,$b) = @{hsv2rgb(0.0,0.85,$value)};
+        my ($r,$g,$b) = @{hsv2rgb(225.0,0.85,$value)};
 		$result .= <<EOF
 	<rect x="$dx" y="$y" width="1" height="$disorder_height" style="fill: rgb($r,$g,$b); stroke:none; stroke-width:0.0"></rect>
 EOF
@@ -870,7 +999,7 @@ EOF
 		$result .= <<EOF
 		<a xlink:href="$link" xlink:show="new" target="_blank">
 
-			<rect x="$start" y="$y" width="$width" height="$structure_height" style="fill:$fill; opacity: 0.85;" rx="2" ry="2" onmouseover="show_tip(evt)" onmouseout="hide_tip(evt)">
+			<rect x="$start" y="$y" width="$width" height="$structure_height" style="fill:$fill; opacity: 0.9;" rx="2" ry="2" onmouseover="show_tip(evt)" onmouseout="hide_tip(evt)">
 				<name>$name</name>
 				<desc>Length: $width</desc>
 				<range>Range: $range</range>
@@ -891,13 +1020,13 @@ EOF
 		my ($x1, $x2) = @connector;
 		if ($is_weak) {
 			$result .= <<EOF
-			<line x1="$x1" y1="$drop_middle" x2="$x2" y2="$drop_middle" style="stroke:$fill; opacity: 0.85; stroke-width:2" />
+			<line x1="$x1" y1="$drop_middle" x2="$x2" y2="$drop_middle" style="stroke:$fill; opacity: 0.9; stroke-width:2" />
 EOF
 			;
 		}
 		else {
 			$result .= <<EOF
-			<line x1="$x1" y1="$middle" x2="$x2" y2="$middle" style="stroke:$fill; opacity: 0.85; stroke-width:2" />
+			<line x1="$x1" y1="$middle" x2="$x2" y2="$middle" style="stroke:$fill; opacity: 0.9; stroke-width:2" />
 EOF
 			;
 		}
@@ -911,6 +1040,82 @@ EOF
 
 	}
 	return $result;
+}
+
+=item B<draw_binding($proten)>
+
+    Draws all binding regions
+=cut
+sub draw_binding {
+    my ($protein) = @_;
+	$dy = ($current_record * $record_height) + ($current_record * $record_spacing);
+    my $top = $dy;
+    my $middle = $dy + ($record_height / 2);
+    my $bottom = $dy + $record_height;
+    my $y = $middle + ($middle-$top)/2 +10;
+    my $result = "<g>\n";
+    foreach my $range (@{$protein_details{$protein}{'binding'}}) {
+        my $start = $range->[0];
+        my $width = 1 + $range->[1] - $start;
+            $result .= "<rect x='$start' y='$y' width='$width' height='$binding_height' fill='gold' />\n";
+            $result .= "<rect x='$start' y='$y' width='$width' height='$binding_height' fill='url(#binding)' opacity='0.5' onmouseover='show_tip(evt)' onmouseout='hide_tip(evt)'>\n";
+		    $result .= "<name>ANCHOR binding region</name>";
+    		$result .= "<range>Range: $range->[0]-$range->[1]</range>";
+    		$result .= "<desc>Length: $width</desc>";
+            $result .= "</rect>\n";
+    }
+    $result .= "</g>\n";
+    return $result;
+}
+=item B<draw_ptms($proten)>
+
+    Draws all non synonymous PTMs for this protein
+=cut
+sub draw_ptms {
+    my ($protein) = @_;
+	$dy = ($current_record * $record_height) + ($current_record * $record_spacing);
+    my $top = $dy;
+    my $middle = $dy + ($record_height / 2);
+    my $bottom = $dy + $record_height - 5;
+    my $result = "<g>\n";
+    my $count = 0;
+    foreach my $ptm (@{$ptm_details{$protein}}) {
+        #Alternate heights and dashing of PTMs that are near each other
+        my $label = $ptm_abrev{$ptm->{'type'}};
+        my $displace = $bottom-$ptm_size*($count%$ptm_levels);
+        my $dashstop1 = 1+$count%8;
+        my $dashstop2 = 1+$count%5;
+        $count++;
+        $result .= "<line x1='$ptm->{'locus'}' y1='$displace' x2='$ptm->{'locus'}' y2='$middle' style='stroke:black;stroke-width:0.25; stroke-dasharray: $dashstop1,$dashstop2;' />\n";
+        my $txt_x = $ptm->{'locus'}-2*($ptm_size/6);
+        my $txt_y = $displace+$ptm_size;
+        my $dot_y = $displace+2*($ptm_size/3);
+        my $dot_size = $ptm_size / 2;
+        $result .= "<circle cx='$ptm->{'locus'}' cy='$dot_y' r='$dot_size' fill='$ptm_colours{$ptm->{'type'}}'/>";
+        $result .= "<circle cx='$ptm->{'locus'}' cy='$dot_y' r='$dot_size' opacity='1.0' fill='url(#radial-glow)' />";
+        if ($ptm->{'disordered'}) {
+            $result .= "<text font-family='arial' font-size='$ptm_size' style='fill:white' x='$txt_x' y='$txt_y'>$label</text>\n";
+            $result .= "<text font-family='arial' font-size='$ptm_size' style='filter:url(#emboss);' x='$txt_x' y='$txt_y'>$label</text>\n";
+        } else {
+            $result .= "<text font-family='arial' font-size='$ptm_size' style='fill:white' x='$txt_x' y='$txt_y'>$label</text>\n";
+            $result .= "<text font-family='arial' font-size='$ptm_size' style='filter:url(#emboss);' x='$txt_x' y='$txt_y'>$label</text>\n";
+        }
+        $result .= "<circle cx='$ptm->{'locus'}' cy='$dot_y' r='$dot_size' opacity='0.0' onmouseover='show_tip(evt)' onmouseout='hide_tip(evt)'>";
+        my $name = $ptm->{'type'}; 
+        $name =~ s/_/ /g;
+        $name =~ s/(\w+)/\u\L$1/g;
+        my $region = $ptm->{'seq'};
+        substr($region,7,1,"[".substr($region,7,1)."]");
+        $region =~ s/_//g;
+		$result .= "<name>$name site</name>";
+		$result .= "<range>Locus: $ptm->{'locus'}</range>";
+		$result .= "<quality>Modifying: $ptm->{'amino'}</quality>";
+		$result .= "<desc>Region: $region</desc>";
+        $result .= "</circle>";
+
+    }
+    $result .= "</g>\n";
+    return $result;
 }
 
 =item B<draw_protein($protein)>
@@ -957,6 +1162,97 @@ EOF
     	$result .= draw_structures($protein);
 	    $result .= draw_structures($protein, 'weaker') if $include_weak_hits;
     }
+    
+    if ($draw_key) {
+        if ($draw_experiments and $protein_details{$protein}{'num_experiments'} >= 1) {
+            my $num_experiments = $protein_details{$protein}{'num_experiments'};
+            my $brace_y = $top+$disorder_spacing+$disorder_height;
+            my $text_y = $brace_y + 2.5 + $num_experiments/2*$disorder_height;
+            my $text_x = $length+20;
+            my $brace_height = $num_experiments*$disorder_height;
+            $result .= "<g transform='translate($length,$brace_y)'>\n
+                            <svg preserveAspectRatio='none' viewBox='0 0 60 160' width='30' height='$brace_height' version='1.1' xmlns='http://www.w3.org/2000/svg'>\n
+                                <path stroke='black' stroke-width='1.0' fill='none' 
+                                    d='m 0,0 
+                                        c 7,0 11,1 13,3 3,3 4,4 4,7 
+                                        l 0,25 
+                                        c 0,15 2,25 5,31 3,6 9,10 15,13 -6,3 -12,7 -15,13 -3,6 -5,16 -5,31 l 0,25 
+                                        c 0,3 -1,4 -4,7 -2,2 -6,3 -13,3' />\n
+                            </svg>\n
+                        </g>";
+                #$result .= "<text font-size='10' x='$text_x' y='$text_y'>Verified Disorder</text>";
+        }
+        if ($draw_disorder) {
+            my $brace_y = $middle-$disorder_spacing-$num_predictors*$disorder_height;
+            my $text_y = $brace_y + 2.5 + $num_predictors/2*$disorder_height;
+            my $text_x = $length+20;
+            my $brace_height = $num_predictors*$disorder_height;
+            $result .= "<g transform='translate($length,$brace_y)'>\n
+                            <svg preserveAspectRatio='none' viewBox='0 0 60 160' width='30' height='$brace_height' version='1.1' xmlns='http://www.w3.org/2000/svg'>\n
+                                <path stroke='black' stroke-width='1.0' fill='none' 
+                                    d='m 0,0 
+                                        c 7,0 11,1 13,3 3,3 4,4 4,7 
+                                        l 0,25 
+                                        c 0,15 2,25 5,31 3,6 9,10 15,13 -6,3 -12,7 -15,13 -3,6 -5,16 -5,31 l 0,25 
+                                        c 0,3 -1,4 -4,7 -2,2 -6,3 -13,3' />\n
+                            </svg>\n
+                        </g>";
+                #$result .= "<text font-size='10' x='$text_x' y='$text_y'>Predicted Disorder</text>";
+        }
+        unless ($nostruct) {
+            my $brace_y = $middle - $structure_height;
+            my $brace_height = 10+$structure_height*2;
+            $brace_height += $weak_below if $include_weak_hits; 
+            my $text_y = $brace_y + $brace_height/2 + 3;
+            my $text_x = $length+20;
+            $result .= "<g transform='translate($length,$brace_y)'>\n
+                            <svg preserveAspectRatio='none' viewBox='0 0 60 160' width='30' height='$brace_height' version='1.1' xmlns='http://www.w3.org/2000/svg'>\n
+                                <path stroke='black' stroke-width='1.0' fill='none' 
+                                    d='m 0,0 
+                                        c 7,0 11,1 13,3 3,3 4,4 4,7 
+                                        l 0,25 
+                                        c 0,15 2,25 5,31 3,6 9,10 15,13 -6,3 -12,7 -15,13 -3,6 -5,16 -5,31 l 0,25 
+                                        c 0,3 -1,4 -4,7 -2,2 -6,3 -13,3' />\n
+                            </svg>\n
+                        </g>";
+                $result .= "<text font-size='10' x='$text_x' y='$text_y'>Predicted Domains</text>";
+        }
+        if ($draw_binding) {
+            my $brace_y = $middle + ($middle-$top)/2+$binding_height;
+            my $brace_height = $binding_height*3;
+            my $text_y = $brace_y + $brace_height/2 + 3;
+            my $text_x = $length+20;
+            $result .= "<g transform='translate($length,$brace_y)'>\n
+                            <svg preserveAspectRatio='none' viewBox='0 0 60 160' width='30' height='$brace_height' version='1.1' xmlns='http://www.w3.org/2000/svg'>\n
+                                <path stroke='black' stroke-width='1.0' fill='none' 
+                                    d='m 0,0 
+                                        c 7,0 11,1 13,3 3,3 4,4 4,7 
+                                        l 0,25 
+                                        c 0,15 2,25 5,31 3,6 9,10 15,13 -6,3 -12,7 -15,13 -3,6 -5,16 -5,31 l 0,25 
+                                        c 0,3 -1,4 -4,7 -2,2 -6,3 -13,3' />\n
+                            </svg>\n
+                        </g>";
+                $result .= "<text font-size='10' x='$text_x' y='$text_y'>Binding Regions</text>";
+        }
+        if ($draw_ptms) {
+            my $brace_y = 5+$bottom - $ptm_size*$ptm_levels;
+            my $brace_height = $ptm_size*$ptm_levels;
+            my $text_y = $brace_y + $brace_height/2 + 3;
+            my $text_x = $length+20;
+            $result .= "<g transform='translate($length,$brace_y)'>\n
+                            <svg preserveAspectRatio='none' viewBox='0 0 60 160' width='30' height='$brace_height' version='1.1' xmlns='http://www.w3.org/2000/svg'>\n
+                                <path stroke='black' stroke-width='1.0' fill='none' 
+                                    d='m 0,0 
+                                        c 7,0 11,1 13,3 3,3 4,4 4,7 
+                                        l 0,25 
+                                        c 0,15 2,25 5,31 3,6 9,10 15,13 -6,3 -12,7 -15,13 -3,6 -5,16 -5,31 l 0,25 
+                                        c 0,3 -1,4 -4,7 -2,2 -6,3 -13,3' />\n
+                            </svg>\n
+                        </g>";
+                $result .= "<text font-size='10' x='$text_x' y='$text_y'>PTM Sites</text>";
+        }
+    }
+
 	return $result."\n</g>\n";
 }
 
@@ -1036,6 +1332,24 @@ sub sf_key {
 		$dy+=12;
 		$text_dy = $dy + 8;
 	}
+    if ($draw_binding) {
+		$result .= "<rect x=\"$dx\" y=\"".($dy+3)."\" width=\"10\" height=\"5\" fill=\"url(#binding)\" />";
+		$result .= "<text x=\"".($dx+12)."\" y=\"$text_dy\" font-size=\"10\">Predicted Binding Region</text>";
+		$dy+=12;
+		$text_dy = $dy + 8;
+    }
+    #Add PTM sites to the key if we are including those results
+    if ($draw_ptms) {
+        $dx += 5;
+        $dy += 5;
+        $result .= "<circle cx='$dx' cy='$dy' r='5' fill='#666666'/>";
+        $result .= "<circle cx='$dx' cy='$dy' r='5' opacity='1.0' fill='url(#radial-glow)' />";
+        $dy += 3; 
+        $dx -= 2; 
+        $result .= "<text font-family='arial' font-size='8' style='fill:white' x='$dx' y='$dy'>?</text>\n";
+        $result .= "<text font-family='arial' font-size='8' style='filter:url(#emboss);' x='$dx' y='$dy'>?</text>\n";
+		$result .= "<text x=\"".($dx+9)."\" y=\"$text_dy\" font-size=\"10\">Curated PTM Site</text>";
+    }
 
 	$dy = $top;
     $dx = 150;
@@ -1048,7 +1362,7 @@ sub sf_key {
 	$dx += 5;
 	$text_dy = $dy + 8;
 
-	foreach my $predictor (sort {$predictor_details{$b}{display_order} <=> $predictor_details{$a}{display_order}} grep {$predictor_details{$_}{type} eq 'disorder'} keys %predictor_details) {
+	foreach my $predictor (sort {$predictor_details{$b}{display_order} <=> $predictor_details{$a}{display_order}} grep {$predictor_details{$_}{type} eq 'disorder' and $predictor_details{$_}{include} eq 1 } keys %predictor_details) {
 		my $colour = $predictor_details{$predictor}{'colour'};
 		my $name = $predictor_details{$predictor}{'name'};
 		my $label = $predictor;
@@ -1094,7 +1408,9 @@ get_details();
 
 #Foreach protein draw the entry and then iterate the vertical cursor to the next record
 foreach my $protein (keys %protein_details) {
+    $output .= draw_ptms($protein) if $draw_ptms;
 	$output .= draw_protein($protein);
+    $output .= draw_binding($protein) if $draw_binding;
 	$current_record++;
 	$dy += $record_height;
 } #Protein foreach
@@ -1116,7 +1432,8 @@ $output .= footer();
 #Print out SVG and ECMA script popup header
 my $width = $ruler_width + ($xpad*3);
 $width = $min_width if $width < $min_width and $draw_labels;
-my $height = $dy+($record_height*0.5);
+$width += $key_size;
+my $height = $dy + ($record_height*0.3);
 $output = header($width,$height) . $output;
 
 if ($force_png) {
@@ -1134,10 +1451,12 @@ if ($force_png) {
     #Using RSVGlib directly, much nicer results!
     #If we want print quality up the DPI and pixel content
     if ($forprint) {
-        $width *= 3;
-        $height *= 3;
+        $width *= $scale * 2;
+        $height *= $scale * 2;
 	    open (PNG, '|-', "rsvg -d 300 -p 300 --format=png -w ${width} -h ${height} $filename /dev/stdout") or error("Couldn't convert to PNG.");
     } else {
+        $width *= $scale;
+        $height *= $scale;
 	    open (PNG, '|-', "rsvg --format=png -w ${width} -h ${height} $filename /dev/stdout") or error("Couldn't convert to PNG.");
     }
 	print <PNG>;
